@@ -333,6 +333,9 @@ export interface Credit {
   who: string
   href: string
   license: string
+  licenseHref?: string
+  /** e.g. what was changed (required by CC BY for adapted works). */
+  note?: string
 }
 
 export const CREDITS: Credit[] = [
@@ -341,17 +344,21 @@ export const CREDITS: Credit[] = [
     who: 'Solar System Scope, based on NASA imagery',
     href: 'https://www.solarsystemscope.com/textures/',
     license: 'CC BY 4.0',
+    licenseHref: 'https://creativecommons.org/licenses/by/4.0/',
+    note: 'Modified: resized, converted to WebP, and color-adjusted when rendered.',
   },
   {
     what: 'Fonts: Space Grotesk, Inter, JetBrains Mono',
     who: 'Florian Karsten; Rasmus Andersson; JetBrains (via Fontsource)',
     href: 'https://fontsource.org',
     license: 'SIL Open Font License 1.1',
+    licenseHref: 'https://openfontlicense.org',
   },
   {
     what: '3D rendering',
     who: 'three.js, React Three Fiber, drei, postprocessing',
     href: 'https://github.com/pmndrs/react-three-fiber',
     license: 'MIT',
+    note: 'Full notices for all open-source packages are in the licenses file below.',
   },
 ]

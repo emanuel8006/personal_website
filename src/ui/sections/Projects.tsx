@@ -1,54 +1,92 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PROJECTS, type Project } from '../../data/content'
-import { prefersReducedMotion } from '../../hooks/useReducedMotion'
+import { prefersReducedMotion, useReducedMotion } from '../../hooks/useReducedMotion'
 import { useAppStore } from '../../store'
 import { Icon } from '../components/icons'
 import { ExternalLink, TechTags } from '../components/primitives'
+import SafeImage from '../components/SafeImage'
 import type { SectionProps } from './types'
 
-function Media({ project }: { project: Project }) {
-  const { media, accent, title } = project
-  const frame = 'aspect-video w-full overflow-hidden rounded-xl border border-white/10'
+const FRAME = 'aspect-video w-full overflow-hidden rounded-xl border border-white/10'
 
-  if (!media) {
-    // Placeholder frame tinted with the project's accent until a screenshot exists
-    return (
-      <div
-        className={`${frame} relative grid place-items-center`}
-        style={{ background: `radial-gradient(120% 90% at 20% 10%, ${accent}33, transparent 60%), #0b0e22` }}
-        role="img"
-        aria-label={`${title}: screenshot coming soon`}
-      >
-        <span className="font-mono text-[11px] tracking-[0.2em] text-slate-400 uppercase">
-          [Screenshot placeholder]
-        </span>
-      </div>
-    )
-  }
+/** Accent-tinted frame shown when there's no media yet, or the file fails to load. */
+function MediaPlaceholder({ project, label }: { project: Project; label: string }) {
+  return (
+    <div
+      className={`${FRAME} relative grid place-items-center`}
+      style={{ background: `radial-gradient(120% 90% at 20% 10%, ${project.accent}33, transparent 60%), #0b0e22` }}
+      role="img"
+      aria-label={label}
+    >
+      <span className="font-mono text-[11px] tracking-[0.2em] text-slate-400 uppercase">
+        {project.media ? 'Preview unavailable' : '[Screenshot placeholder]'}
+      </span>
+    </div>
+  )
+}
 
-  if (media.kind === 'video') {
-    return (
-      <video
-        className={`${frame} object-cover`}
-        src={media.src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        aria-label={media.alt}
-      />
-    )
+/**
+ * Looping demo video: muted, no autoplay for reduced-motion visitors, and a
+ * visible pause/play control (WCAG 2.2.2: moving content must be pausable).
+ */
+function MediaVideo({ project, src, alt }: { project: Project; src: string; alt: string }) {
+  const reduced = useReducedMotion()
+  const video = useRef<HTMLVideoElement>(null)
+  const [playing, setPlaying] = useState(!reduced)
+  const [failed, setFailed] = useState(false)
+  if (failed) return <MediaPlaceholder project={project} label={alt} />
+
+  const toggle = () => {
+    const v = video.current
+    if (!v) return
+    if (v.paused) void v.play()
+    else v.pause()
   }
 
   return (
-    <img
-      className={`${frame} object-cover`}
+    <div className="relative">
+      <video
+        ref={video}
+        className={`${FRAME} object-cover`}
+        src={src}
+        autoPlay={!reduced}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label={alt}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onError={() => setFailed(true)}
+      />
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={playing ? `Pause video: ${alt}` : `Play video: ${alt}`}
+        className="absolute right-2 bottom-2 grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-sm transition hover:border-cyan/60 focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none"
+      >
+        <span aria-hidden="true" className="text-xs">
+          {playing ? '❚❚' : '▶'}
+        </span>
+      </button>
+    </div>
+  )
+}
+
+function Media({ project }: { project: Project }) {
+  const { media, title } = project
+  if (!media) return <MediaPlaceholder project={project} label={`${title}: screenshot coming soon`} />
+  if (media.kind === 'video') return <MediaVideo project={project} src={media.src} alt={media.alt} />
+  return (
+    <SafeImage
+      className={`${FRAME} object-cover`}
       src={media.src}
       srcSet={media.srcSet}
       sizes="(min-width: 768px) 40vw, 100vw"
       alt={media.alt}
       loading="lazy"
       decoding="async"
+      fallback={<MediaPlaceholder project={project} label={media.alt} />}
     />
   )
 }

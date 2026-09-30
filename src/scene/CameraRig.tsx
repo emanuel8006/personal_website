@@ -270,7 +270,14 @@ export default function CameraRig() {
     // Overview: slow ambient drift once the user has been idle for a moment
     const idle = performance.now() / 1000 - r.lastInteraction
     const introDone = useAppStore.getState().intro === 'done'
-    if (introDone && !r.devLocked && !r.introPose && idle > IDLE_BEFORE_DRIFT && !prefersReducedMotion()) {
+    if (
+      introDone &&
+      !r.devLocked &&
+      !r.introPose &&
+      idle > IDLE_BEFORE_DRIFT &&
+      !prefersReducedMotion() &&
+      !useAppStore.getState().motionPaused
+    ) {
       c.rotate(dt * DRIFT_SPEED, 0, false)
     }
   })

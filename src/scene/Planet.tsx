@@ -137,7 +137,7 @@ export default function Planet({ config, surface, tilted, children, appear = fal
     angle.current += dt * config.orbitSpeed * simulation.orbitSpeed * interaction.current.orbit
     const r = config.orbitRadius
     orbit.current?.position.set(Math.cos(angle.current) * r, 0, -Math.sin(angle.current) * r)
-    if (spin.current) spin.current.rotation.y += dt * config.spinSpeed
+    if (spin.current) spin.current.rotation.y += dt * config.spinSpeed * simulation.ambient
     if (grow.current.value < 0.999) {
       easing.damp(grow.current, 'value', 1, 0.6, dt)
       orbit.current?.scale.setScalar(grow.current.value)

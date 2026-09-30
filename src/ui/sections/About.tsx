@@ -1,5 +1,6 @@
-import { ABOUT } from '../../data/content'
+import { ABOUT, SITE } from '../../data/content'
 import { Icon } from '../components/icons'
+import SafeImage from '../components/SafeImage'
 import { buttonClass } from '../components/styles'
 import type { SectionProps } from './types'
 
@@ -9,11 +10,20 @@ export default function About({ onNavigate }: SectionProps) {
     <div className="space-y-6">
       <div className="flex items-center gap-5">
         {photo && (
-          <img
+          <SafeImage
             src={photo.src}
             srcSet={photo.srcSet}
             sizes="112px"
             alt={photo.alt}
+            fallback={
+              <div
+                role="img"
+                aria-label={photo.alt}
+                className="grid h-28 w-28 shrink-0 place-items-center rounded-full bg-gradient-to-br from-sun to-sun-deep font-display text-3xl font-semibold text-space ring-2 ring-sun/50"
+              >
+                {SITE.initials.slice(0, 2)}
+              </div>
+            }
             width={112}
             height={112}
             decoding="async"

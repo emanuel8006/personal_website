@@ -62,7 +62,26 @@ export function resendSender(): SendEmail | null {
 }
 
 /** Request handling, with the email sender injected (so it can be tested without sending). */
+/**
+ * Browsers always send Origin on cross-site POSTs. Reject any that don't match
+ * this site, so other pages can't submit through the form on a visitor's behalf.
+ * (Requests without Origin, e.g. curl, still face validation and rate limits.)
+ */
+function isForeignOrigin(request: Request) {
+  const origin = request.headers.get('origin')
+  if (!origin) return false
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  try {
+    return new URL(origin).host !== host
+  } catch {
+    return true
+  }
+}
+
 export async function handleContact(request: Request, send: SendEmail | null): Promise<Response> {
+  if (isForeignOrigin(request)) {
+    return json({ ok: false, error: 'Cross-origin requests are not allowed.' }, 403)
+  }
   if (!(request.headers.get('content-type') ?? '').includes('application/json')) {
     return json({ ok: false, error: 'Expected a JSON body.' }, 415)
   }

@@ -7,6 +7,7 @@
  * index.html), so interactive visitors never see it; crawlers and no-JS
  * visitors get the full, real content.
  */
+import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -18,6 +19,23 @@ const OUT = path.join(ROOT, 'dist', 'index.html')
 const siteUrl =
   process.env.SITE_URL?.replace(/\/$/, '') ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:5173')
+
+/**
+ * Fail the build if any executable inline <script> in the final HTML isn't
+ * allowlisted (by hash) in the CSP in vercel.json, which would silently break it in production.
+ */
+async function checkCsp(html) {
+  const vercel = JSON.parse(await readFile(path.join(ROOT, 'vercel.json'), 'utf8'))
+  const csp = vercel.headers.flatMap((h) => h.headers).find((h) => h.key === 'Content-Security-Policy')?.value ?? ''
+  const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/g)].filter(
+    ([, attrs]) => !/type="application\/ld\+json"/.test(attrs), // data blocks aren't executed
+  )
+  for (const [, , code] of inline) {
+    const hash = `'sha256-${createHash('sha256').update(code).digest('base64')}'`
+    if (!csp.includes(hash)) throw new Error(`Inline script not allowed by the CSP in vercel.json. Add ${hash} to script-src.`)
+  }
+  console.log(`✓ CSP allows all ${inline.length} inline script(s)`)
+}
 
 const server = await createServer({ root: ROOT, server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' })
 try {
@@ -33,6 +51,7 @@ try {
     .replace('<!--prerender-->', `<div data-prerendered>${body}</div>`)
     .replace('</head>', `  <script type="application/ld+json">${ld}</script>\n  </head>`)
   await writeFile(OUT, html)
+  await checkCsp(html)
 
   // Crawl hints (absolute URLs, so they're generated per build)
   const DIST = path.dirname(OUT)

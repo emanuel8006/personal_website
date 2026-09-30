@@ -12,7 +12,10 @@ import Sun from './Sun'
 
 function OrbitClock() {
   useFrame((_, dt) => {
-    easing.damp(simulation, 'orbitSpeed', simulation.orbitSpeedTarget, 0.6, dt)
+    // "Pause motion" (WCAG 2.2.2) stills orbits and all other ambient animation
+    const paused = useAppStore.getState().motionPaused
+    easing.damp(simulation, 'ambient', paused ? 0 : 1, 0.4, dt)
+    easing.damp(simulation, 'orbitSpeed', paused ? 0 : simulation.orbitSpeedTarget, 0.6, dt)
   })
   return null
 }

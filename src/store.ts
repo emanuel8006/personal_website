@@ -17,6 +17,7 @@ export type IntroMode = 'full' | 'quick'
 const INTRO_SEEN_KEY = 'eg:intro-seen' // sessionStorage
 const PLANET_X_KEY = 'eg:planet-x' // localStorage: stays discovered on return visits
 const VIEW_KEY = 'eg:view' // localStorage: the visitor's explicit 2D/3D choice
+const MOTION_KEY = 'eg:motion-paused' // localStorage: ambient animation paused by the visitor
 
 const params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '')
 const capability: Capability = detectCapability()
@@ -72,6 +73,8 @@ interface AppState {
   /** The special asteroid (Planet X easter egg) is under the pointer. */
   hoveredAsteroid: boolean
   toast: { id: number; message: string; visible: boolean } | null
+  /** Visitor paused ambient motion (orbits, spin, twinkle, drift, meteors). WCAG 2.2.2. */
+  motionPaused: boolean
 
   openSection: (id: SectionId) => void
   closeSection: () => void
@@ -99,6 +102,7 @@ interface AppState {
   setHoveredSkill: (index: number | null) => void
   setHoveredSocial: (href: string | null) => void
   setHoveredAsteroid: (hovered: boolean) => void
+  toggleMotion: () => void
   showToast: (message: string) => void
   dismissToast: () => void
 }
@@ -132,6 +136,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     hoveredSocial: null,
     hoveredAsteroid: false,
     toast: null,
+    motionPaused: readFlag('local', MOTION_KEY),
 
     // Opening/stepping clears hover so a stale tooltip doesn't linger over the new view.
     // Opening a section mid-intro (e.g. a deep link or test) ends the intro.
@@ -241,6 +246,11 @@ export const useAppStore = create<AppState>()((set, get) => {
     setHoveredSkill: (hoveredSkill) => set({ hoveredSkill }),
     setHoveredSocial: (hoveredSocial) => set({ hoveredSocial }),
     setHoveredAsteroid: (hoveredAsteroid) => set({ hoveredAsteroid }),
+    toggleMotion: () => {
+      const motionPaused = !get().motionPaused
+      writeString('local', MOTION_KEY, motionPaused ? '1' : '0')
+      set({ motionPaused })
+    },
     showToast: (message) => set({ toast: { id: Date.now(), message, visible: true } }),
     // Keep the message while it fades out
     dismissToast: () => {

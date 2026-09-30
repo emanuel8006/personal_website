@@ -41,6 +41,7 @@ function MilkyWay({ url }: { url: string }) {
  */
 export default function Starfield() {
   const stars = useAppStore((s) => TIER_SETTINGS[s.quality].stars)
+  const motionPaused = useAppStore((s) => s.motionPaused)
   const backdrop = useRef<Group>(null)
   const milkyWay = textureUrl('starsMilkyWay')
 
@@ -64,7 +65,7 @@ export default function Starfield() {
         {milkyWay && <MilkyWay url={milkyWay} />}
         <Nebula radius={BACKDROP_RADIUS * 0.95} />
       </group>
-      <Stars radius={380} depth={120} count={stars} factor={5} saturation={0.15} fade speed={0.4} />
+      <Stars radius={380} depth={120} count={stars} factor={5} saturation={0.15} fade speed={motionPaused ? 0 : 0.4} />
     </>
   )
 }

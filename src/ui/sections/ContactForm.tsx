@@ -255,6 +255,19 @@ export default function ContactForm() {
           )}
         </p>
       </div>
+      <p className="text-xs leading-relaxed text-slate-400">
+        Your name, email, and message are emailed to me (sent through{' '}
+        <a
+          href="https://resend.com/legal/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none"
+        >
+          Resend<span className="sr-only"> privacy policy (opens in a new tab)</span>
+        </a>
+        ) so I can reply. They aren't stored on this site or used for anything else, and this site uses no cookies or
+        tracking.
+      </p>
     </form>
   )
 }

@@ -79,12 +79,13 @@ function SpecialAsteroid() {
     const hovered = useAppStore.getState().hoveredAsteroid
     easing.damp(hover.current, 'value', hovered ? 1 : 0, 0.15, dt)
     if (group.current) {
-      group.current.rotation.x += dt * 0.25
-      group.current.rotation.y += dt * 0.18
+      group.current.rotation.x += dt * 0.25 * simulation.ambient
+      group.current.rotation.y += dt * 0.18 * simulation.ambient
       group.current.scale.setScalar(1 + 0.35 * hover.current.value)
     }
     if (material.current) {
-      const pulse = 0.35 + 0.35 * Math.sin(clock.elapsedTime * 1.6)
+      // Steady glow while motion is paused (WCAG 2.2.2)
+      const pulse = useAppStore.getState().motionPaused ? 0.45 : 0.35 + 0.35 * Math.sin(clock.elapsedTime * 1.6)
       material.current.emissiveIntensity = pulse + 1.4 * hover.current.value
     }
   })

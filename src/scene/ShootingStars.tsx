@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { AdditiveBlending, CanvasTexture, MathUtils, Vector3, type Sprite } from 'three'
 import { prefersReducedMotion } from '../hooks/useReducedMotion'
+import { useAppStore } from '../store'
 
 const POOL = 2
 const DISTANCE = 320 // far behind the planets, in front of the backdrop
@@ -67,7 +68,7 @@ export default function ShootingStars() {
   const nextIn = useRef(MathUtils.randFloat(2, 5))
 
   useFrame(({ camera }, dt) => {
-    const reduced = prefersReducedMotion()
+    const reduced = prefersReducedMotion() || useAppStore.getState().motionPaused
     nextIn.current -= dt
 
     if (!reduced && nextIn.current <= 0) {

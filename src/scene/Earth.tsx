@@ -4,6 +4,7 @@ import { Color, MeshStandardMaterial, Vector2, type Group } from 'three'
 import { EARTH_MOON, PLANETS } from './bodies'
 import Planet, { LazySurfaceMesh, Moon } from './Planet'
 import { proceduralClouds, proceduralSurface } from './procedural'
+import { simulation } from './registry'
 import TextureBoundary from './TextureBoundary'
 import { useBodyTextures } from './useBodyTextures'
 
@@ -83,7 +84,7 @@ function Clouds() {
   const map = alphaMap ?? proceduralClouds()
 
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * (config.spinSpeed * 1.35)
+    if (ref.current) ref.current.rotation.y += dt * (config.spinSpeed * 1.35) * simulation.ambient
   })
 
   return (

@@ -6,6 +6,7 @@ import BackButton from './BackButton'
 import ContentPanel from './ContentPanel'
 import Credits from './Credits'
 import Minimap from './Minimap'
+import MotionToggle from './MotionToggle'
 import Nav from './Nav'
 import Tooltip from './Tooltip'
 import ViewToggle from './ViewToggle'
@@ -44,11 +45,15 @@ export default function Hud() {
             <ViewToggle />
           </div>
         </header>
-        <div className="absolute bottom-4 left-4 hidden md:block sm:bottom-6 sm:left-6">
-          <Minimap />
-        </div>
-        <div className="pointer-events-auto absolute right-4 bottom-4 sm:right-6 sm:bottom-6">
-          <Credits />
+        {/* Bottom-left: never under the content panel (which occupies the right) */}
+        <div className="absolute bottom-4 left-4 flex flex-col items-start gap-3 sm:bottom-6 sm:left-6">
+          <div className="pointer-events-auto flex items-center gap-4 rounded-full bg-space/40 px-3 py-1.5 backdrop-blur-sm">
+            <MotionToggle />
+            <Credits />
+          </div>
+          <div className="hidden md:block">
+            <Minimap />
+          </div>
         </div>
       </motion.div>
       <ContentPanel />

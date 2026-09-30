@@ -74,7 +74,9 @@ function Satellite({ link, index, count }: { link: SocialLink; index: number; co
 
     // Beacon: short blink every ~2 s, solid while hovered
     if (beacon.current) {
-      const blink = (Math.sin(clock.elapsedTime * 3 + phase) + 1) / 2 > 0.85 ? 1 : 0.15
+      // Paused motion (WCAG 2.2.2): steady beacon instead of blinking
+      const paused = useAppStore.getState().motionPaused
+      const blink = paused ? 0.6 : (Math.sin(clock.elapsedTime * 3 + phase) + 1) / 2 > 0.85 ? 1 : 0.15
       beacon.current.emissiveIntensity = 2.5 * Math.max(blink, s.hover)
     }
   })

@@ -33,7 +33,12 @@ export function registerBody(id: SectionId, object: Object3D | null, radius: num
  * Phase 3 drives the target (0 while a panel is open, 1 in the overview).
  */
 const frozen = import.meta.env.DEV && new URLSearchParams(location.search).has('freeze') // dev: stop orbits for screenshots
-export const simulation = { orbitSpeed: frozen ? 0 : 1, orbitSpeedTarget: frozen ? 0 : 1 }
+export const simulation = {
+  orbitSpeed: frozen ? 0 : 1,
+  orbitSpeedTarget: frozen ? 0 : 1,
+  /** 0..1 multiplier for ambient animation (spin, surface boil); eases to 0 while motion is paused. */
+  ambient: 1,
+}
 
 /** Camera flight state, read by the chromatic-aberration pass. */
 export const flight = { active: false, progress: 0 }

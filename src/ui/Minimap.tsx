@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { SECTIONS } from '../data/content'
 import { PLANETS } from '../scene/bodies'
 import { bodyRegistry } from '../scene/registry'
@@ -17,7 +17,11 @@ const DOT_COLORS: Record<SectionId, string> = {
 }
 
 /**
- * Top-down orbit tracker. Dots follow the live planet positions (updated per
+ * Top-down orbit tracker.
+ *
+ * Accessibility note: the dots are 24px targets but move, so two can briefly
+ * overlap. WCAG 2.5.8 (Target Size) is still met via its "equivalent control"
+ * exception: every dot's action is also in the text nav, whose targets comply. Dots follow the live planet positions (updated per
  * animation frame via refs, no React re-renders). Every dot is a real button,
  * so it doubles as accessible navigation.
  */
@@ -31,8 +35,10 @@ export default function Minimap() {
 
   const ids = availableSections(planetXFound)
   const maxOrbit = planetXFound ? PLANETS.personal.orbitRadius : PLANETS.skills.orbitRadius + 10
-  const scale = (SIZE / 2 - PAD) / maxOrbit
   const c = SIZE / 2
+  // Square-root radial scale: spreads the crowded inner orbits so dots (24px targets) rarely overlap
+  const R = SIZE / 2 - PAD
+  const radius = useCallback((r: number) => Math.sqrt(r / maxOrbit) * R, [maxOrbit, R])
 
   useEffect(() => {
     let raf = 0
@@ -41,13 +47,15 @@ export default function Minimap() {
         const entry = bodyRegistry.get(id)
         if (!el || !entry) continue
         const { x, z } = entry.object.position
-        el.style.transform = `translate(${c + x * scale}px, ${c + z * scale}px) translate(-50%, -50%)`
+        const d = Math.hypot(x, z)
+        const k = d > 1e-6 ? radius(d) / d : 0
+        el.style.transform = `translate(${c + x * k}px, ${c + z * k}px) translate(-50%, -50%)`
       }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [c, scale])
+  }, [c, radius])
 
   const orbits = (Object.values(PLANETS) as (typeof PLANETS)[keyof typeof PLANETS][]).filter(
     (p) => p.id !== 'personal' || planetXFound,
@@ -78,10 +86,10 @@ export default function Minimap() {
           <circle
             cx={c}
             cy={c}
-            r={62 * scale}
+            r={(radius(56) + radius(68)) / 2}
             fill="none"
             stroke="rgba(180,170,150,0.18)"
-            strokeWidth={12 * scale}
+            strokeWidth={radius(68) - radius(56)}
             strokeDasharray="1 2"
           />
           {orbits.map((p) => (
@@ -89,7 +97,7 @@ export default function Minimap() {
               key={p.id}
               cx={c}
               cy={c}
-              r={p.orbitRadius * scale}
+              r={radius(p.orbitRadius)}
               fill="none"
               stroke={section === p.id ? 'rgba(94,231,255,0.55)' : 'rgba(143,216,255,0.16)'}
               strokeWidth={1}

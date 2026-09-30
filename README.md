@@ -21,7 +21,7 @@ npm run dev                   # http://localhost:5173
 | Script | What it does |
 |---|---|
 | `npm run dev` | Vite dev server. A small dev-only plugin (`scripts/vite-dev-api.ts`) also serves `api/*` so the contact form works locally. |
-| `npm run build` | Type-check, production build, then prerender the 2D view into `dist/index.html` (plus `robots.txt` and `sitemap.xml`). |
+| `npm run build` | Type-check, production build, prerender the 2D view into `dist/index.html` (plus `robots.txt` and `sitemap.xml`), verify the CSP, and generate `third-party-licenses.txt`. |
 | `npm run preview` | Serve the production build locally. |
 | `npm run lint` | oxlint. |
 | `npm run textures` | Convert raw textures in `source-textures/` into optimized WebP files in `public/textures/` (see below). |
@@ -150,11 +150,20 @@ src/fallback/            2D PlainView (also prerendered at build time)
 - **Accessibility:** all panel content is real DOM text with proper landmarks and headings. Every planet is reachable from the text nav and the minimap (both keyboard-accessible). Escape closes, ←/→ switch sections, and focus moves into the panel and back.
 - **Reduced motion:** skips the intro and turns camera flights into quick fades. It also disables the spaceship cursor, shooting stars, chromatic aberration, and the 2D star drift.
 - **SEO:** the 2D view is prerendered into `index.html`, so crawlers and no-JS visitors get the full content. That prerendered copy is hidden as soon as JavaScript runs. `index.html` also carries Open Graph and Twitter tags, schema.org `Person` data, a sitemap, and `robots.txt`.
+- **Security:**
+  - No secrets in the client. Server env vars are read only in `api/`, and the build contains no key material.
+  - The contact endpoint rejects cross-origin posts and validates and size-limits input. It rate-limits, drops bots via the honeypot and timing checks, escapes HTML, and never logs message content.
+  - `vercel.json` sets a strict Content-Security-Policy (no inline scripts except one hash-allowlisted line, which the build verifies), HSTS, `frame-ancestors 'none'`/`X-Frame-Options`, `nosniff`, a Referrer-Policy, COOP, and a locked-down Permissions-Policy. `npm run preview` serves the same headers, so CSP problems show up locally.
+  - The CSP blocks Vercel's preview-deployment toolbar. That's expected and doesn't affect production.
+- **Privacy:** no cookies, analytics, or tracking. `localStorage`/`sessionStorage` hold only UI preferences: intro seen, 2D/3D choice, paused motion, and Planet X found. The contact form states where messages go. Shipped images are stripped of EXIF metadata by the optimize scripts.
+- **Motion:** a "Pause motion" control (WCAG 2.2.2) stills orbits, spin, twinkle, drift, meteors, and blinking beacons, and is remembered between visits.
 - **Easter eggs:** a suspicious asteroid, the Konami code, a faint ✦ in the 2D footer, and a message in the browser console.
 
 ---
 
 ## Credits
+
+Full license notices for every open-source package are generated at build time into `/third-party-licenses.txt`, linked from the site's Credits dialog.
 
 - **Planet textures** by [Solar System Scope](https://www.solarsystemscope.com/textures/), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), based on NASA imagery.
 - **Fonts:** Space Grotesk, Inter, and JetBrains Mono, via [Fontsource](https://fontsource.org) (SIL Open Font License 1.1).

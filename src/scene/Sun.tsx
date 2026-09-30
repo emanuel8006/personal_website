@@ -4,7 +4,7 @@ import { AdditiveBlending, Color, type Group, type ShaderMaterial, type Sprite }
 import { SUN_RADIUS } from './bodies'
 import { coronaRays, radialGlow } from './procedural'
 import { bodyPointerHandlers, useBodyInteraction } from './interaction'
-import { registerBody } from './registry'
+import { registerBody, simulation } from './registry'
 import { useBodyTextures } from './useBodyTextures'
 
 /**
@@ -119,11 +119,11 @@ export default function Sun() {
 
   useFrame((_, dt) => {
     if (material.current) {
-      material.current.uniforms.uTime.value += dt
+      material.current.uniforms.uTime.value += dt * simulation.ambient
       material.current.uniforms.uIntensity.value = BASE_INTENSITY + 0.6 * interaction.current.hover
     }
-    if (rays.current) rays.current.material.rotation += dt * 0.01
-    if (rays2.current) rays2.current.material.rotation -= dt * 0.006
+    if (rays.current) rays.current.material.rotation += dt * 0.01 * simulation.ambient
+    if (rays2.current) rays2.current.material.rotation -= dt * 0.006 * simulation.ambient
   })
 
   return (

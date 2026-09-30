@@ -86,3 +86,8 @@
     animation: none;
   }
 }
+
+/* "Pause motion" toggle (src/ui/MotionToggle.tsx) */
+.motion-paused .star-drift {
+  animation-play-state: paused;
+}

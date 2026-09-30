@@ -52,11 +52,36 @@ export default function Credits({ className = '' }: { className?: string }) {
                     {c.who}
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
-                  <span className="text-slate-400"> · {c.license}</span>
+                  <span className="text-slate-400"> · </span>
+                  {c.licenseHref ? (
+                    <a
+                      href={c.licenseHref}
+                      target="_blank"
+                      rel="noopener noreferrer license"
+                      className="text-slate-300 underline underline-offset-4 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none"
+                    >
+                      {c.license}
+                      <span className="sr-only"> license (opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <span className="text-slate-400">{c.license}</span>
+                  )}
                 </p>
+                {c.note && <p className="mt-0.5 text-xs text-slate-400">{c.note}</p>}
               </li>
             ))}
           </ul>
+          <p className="mt-5 text-sm">
+            <a
+              href="/third-party-licenses.txt"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none"
+            >
+              Open-source licenses
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
           <p className="mt-6 font-mono text-xs text-slate-400">Designed and built by Emanuel Galindo Garcia.</p>
         </div>
       </dialog>

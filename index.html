@@ -40,9 +40,8 @@
     <meta name="twitter:image" content="%SITE_URL%/og-image.png" />
 
     <!-- The prerendered 2D content (for crawlers and no-JS visitors) is hidden as soon as JS runs -->
-    <script>
-      document.documentElement.classList.add('js')
-    </script>
+    <!-- Keep on one line: its sha256 is allowlisted in the CSP (vercel.json); the build checks they match -->
+    <script>document.documentElement.classList.add('js')</script>
     <style>
       html.js [data-prerendered] { display: none; }
       html, body { background: #05060f; }
