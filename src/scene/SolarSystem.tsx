@@ -50,7 +50,7 @@ export default function SolarSystem() {
       {planetXFound && (
         <>
           <OrbitLine radius={PLANETS.personal.orbitRadius} opacity={0.08} />
-          <Planet config={PLANETS.personal} />
+          <Planet config={PLANETS.personal} appear />
         </>
       )}
     </>

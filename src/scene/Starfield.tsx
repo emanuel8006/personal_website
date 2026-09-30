@@ -1,21 +1,34 @@
 import { Stars, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
+import { easing } from 'maath'
 import { useRef } from 'react'
-import { BackSide, SRGBColorSpace, type Group } from 'three'
+import { BackSide, Color, SRGBColorSpace, type Group, type MeshBasicMaterial } from 'three'
+import { useAppStore } from '../store'
 import Nebula from './Nebula'
+import { reveal } from './registry'
 import { textureUrl } from './textures'
 
 const BACKDROP_RADIUS = 1000
+const MILKY_WAY_TINT = new Color('#c4c9e4')
 
 function MilkyWay({ url }: { url: string }) {
   const map = useTexture(url, (t) => {
     t.colorSpace = SRGBColorSpace
   })
+  const material = useRef<MeshBasicMaterial>(null)
+  useFrame(() => material.current?.color.copy(MILKY_WAY_TINT).multiplyScalar(reveal.value))
   return (
     // scale.x = -1 un-mirrors the equirect when viewed from inside (BackSide)
     <mesh scale={[-1, 1, 1]} renderOrder={-2}>
       <sphereGeometry args={[BACKDROP_RADIUS, 64, 32]} />
-      <meshBasicMaterial map={map} side={BackSide} color="#c4c9e4" depthWrite={false} toneMapped={false} />
+      <meshBasicMaterial
+        ref={material}
+        map={map}
+        side={BackSide}
+        color={MILKY_WAY_TINT}
+        depthWrite={false}
+        toneMapped={false}
+      />
     </mesh>
   )
 }
@@ -29,8 +42,18 @@ export default function Starfield() {
   const backdrop = useRef<Group>(null)
   const milkyWay = textureUrl('starsMilkyWay')
 
-  useFrame(({ camera }) => {
+  const primed = useRef(false)
+
+  useFrame(({ camera }, dt) => {
     backdrop.current?.position.copy(camera.position)
+
+    // Full intro: backdrop starts dark and brightens once the intro begins
+    const { intro, introMode } = useAppStore.getState()
+    if (!primed.current) {
+      primed.current = true
+      if (intro === 'loading' && introMode === 'full') reveal.value = 0
+    }
+    easing.damp(reveal, 'value', intro === 'loading' && introMode === 'full' ? 0 : 1, 1.1, dt)
   })
 
   return (

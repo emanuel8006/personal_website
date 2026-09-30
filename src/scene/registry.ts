@@ -37,3 +37,12 @@ export const simulation = { orbitSpeed: frozen ? 0 : 1, orbitSpeedTarget: frozen
 
 /** Camera flight state, read by the chromatic-aberration pass. */
 export const flight = { active: false, progress: 0 }
+
+/**
+ * Backdrop brightness 0..1. Starts dark for the full intro so the stars come
+ * into view as the black overlay lifts; Starfield eases it up.
+ */
+export const reveal = { value: 1 }
+
+/** The Planet X easter-egg asteroid (tooltip anchor). */
+export const specialAsteroid: { object: Object3D | null; radius: number } = { object: null, radius: 0.9 }

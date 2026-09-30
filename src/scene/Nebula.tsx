@@ -1,5 +1,7 @@
-import { useMemo } from 'react'
-import { AdditiveBlending, BackSide, Color } from 'three'
+import { useFrame } from '@react-three/fiber'
+import { useMemo, useRef } from 'react'
+import { AdditiveBlending, BackSide, Color, type ShaderMaterial } from 'three'
+import { reveal } from './registry'
 
 /**
  * Procedural nebula layered over the Milky Way backdrop. Noise is sampled in
@@ -79,11 +81,16 @@ export default function Nebula({ radius = 900, intensity = 0.42 }: { radius?: nu
     }),
     [intensity],
   )
+  const material = useRef<ShaderMaterial>(null)
+  useFrame(() => {
+    if (material.current) material.current.uniforms.uIntensity.value = intensity * reveal.value
+  })
 
   return (
     <mesh renderOrder={-1}>
       <sphereGeometry args={[radius, 64, 32]} />
       <shaderMaterial
+        ref={material}
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
         uniforms={uniforms}

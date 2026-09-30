@@ -6,7 +6,7 @@ import { PROJECTS, type Project } from '../data/content'
 import { useAppStore } from '../store'
 import { projectMoonConfig } from './bodies'
 import HoverGlow from './HoverGlow'
-import type { InteractionState } from './interaction'
+import { canInteract, type InteractionState } from './interaction'
 import { Surface } from './Planet'
 import { proceduralSurface } from './procedural'
 import { registerMoon, simulation } from './registry'
@@ -46,6 +46,7 @@ function ProjectMoon({ project, index }: { project: Project; index: number }) {
   const handlers = useMemo(
     () => ({
       onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+        if (!canInteract()) return
         e.stopPropagation()
         useAppStore.getState().setHoveredProject(project.id)
         document.body.style.cursor = 'pointer'
@@ -55,6 +56,7 @@ function ProjectMoon({ project, index }: { project: Project; index: number }) {
         document.body.style.cursor = ''
       },
       onClick: (e: ThreeEvent<MouseEvent>) => {
+        if (!canInteract()) return
         e.stopPropagation()
         if (e.delta > CLICK_SLOP) return
         useAppStore.getState().focusProject(project.id)

@@ -5,6 +5,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { printConsoleGreeting } from './lib/consoleGreeting'
+
+printConsoleGreeting()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

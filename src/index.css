@@ -32,3 +32,16 @@
     @apply font-display;
   }
 }
+
+/* Spaceship cursor (desktop, fine pointer): hide the native cursor, except
+   over text fields where a real text caret is more useful. */
+.has-ship-cursor,
+.has-ship-cursor * {
+  cursor: none !important;
+}
+.has-ship-cursor :is(input, textarea, select, [contenteditable='true']) {
+  cursor: text !important;
+}
+.has-ship-cursor select {
+  cursor: default !important;
+}

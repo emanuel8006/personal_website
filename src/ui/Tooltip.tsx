@@ -7,7 +7,25 @@ function useTooltipContent() {
   const hovered = useAppStore((s) => s.hovered)
   const hoveredProject = useAppStore((s) => s.hoveredProject)
   const hoveredSocial = useAppStore((s) => s.hoveredSocial)
+  const hoveredAsteroid = useAppStore((s) => s.hoveredAsteroid)
+  const planetXFound = useAppStore((s) => s.planetXFound)
   const section = useAppStore((s) => s.section)
+
+  if (hoveredAsteroid) {
+    return planetXFound
+      ? {
+          key: 'asteroid',
+          eyebrow: 'Asteroid belt · Signal source',
+          title: null,
+          line: 'The beacon that led you to Planet X',
+        }
+      : {
+          key: 'asteroid',
+          eyebrow: 'Asteroid belt · Anomaly',
+          title: null,
+          line: 'This one looks… different. Click to scan.',
+        }
+  }
 
   if (hoveredSocial) {
     const link = CONTACT.socials.find((x) => x.href === hoveredSocial)

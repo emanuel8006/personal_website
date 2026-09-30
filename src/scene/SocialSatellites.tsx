@@ -6,7 +6,7 @@ import { CONTACT, type SocialLink } from '../data/content'
 import { useAppStore } from '../store'
 import { MERCURY_SATELLITES } from './bodies'
 import HoverGlow from './HoverGlow'
-import type { InteractionState } from './interaction'
+import { canInteract, type InteractionState } from './interaction'
 import { registerSatellite, simulation } from './registry'
 
 const CLICK_SLOP = 6
@@ -82,6 +82,7 @@ function Satellite({ link, index, count }: { link: SocialLink; index: number; co
   const handlers = useMemo(
     () => ({
       onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+        if (!canInteract()) return
         e.stopPropagation()
         useAppStore.getState().setHoveredSocial(link.href)
         document.body.style.cursor = 'pointer'
@@ -91,6 +92,7 @@ function Satellite({ link, index, count }: { link: SocialLink; index: number; co
         document.body.style.cursor = ''
       },
       onClick: (e: ThreeEvent<MouseEvent>) => {
+        if (!canInteract()) return
         e.stopPropagation()
         if (e.delta > CLICK_SLOP) return
         openLink(link.href)

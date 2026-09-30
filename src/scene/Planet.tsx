@@ -1,4 +1,5 @@
 import { useFrame } from '@react-three/fiber'
+import { easing } from 'maath'
 import { Suspense, useMemo, useRef, type ReactNode } from 'react'
 import type { Group, Texture } from 'three'
 import Atmosphere from './Atmosphere'
@@ -97,6 +98,8 @@ interface PlanetProps {
   tilted?: ReactNode
   /** Rendered in the untilted orbit frame (moons, satellites). */
   children?: ReactNode
+  /** Grow in from nothing on mount (Planet X on discovery). */
+  appear?: boolean
 }
 
 /**
@@ -104,11 +107,12 @@ interface PlanetProps {
  * integrated per frame (not derived from elapsed time) so the global orbit
  * speed can ease to zero and back without the planets jumping.
  */
-export default function Planet({ config, surface, tilted, children }: PlanetProps) {
+export default function Planet({ config, surface, tilted, children, appear = false }: PlanetProps) {
   const orbit = useRef<Group>(null)
   const body = useRef<Group>(null)
   const spin = useRef<Group>(null)
   const angle = useRef(config.phase)
+  const grow = useRef({ value: appear ? 0.001 : 1 })
   const interaction = useBodyInteraction(config.id, orbit, body)
   const handlers = useMemo(() => bodyPointerHandlers(config.id), [config.id])
   const fallback = useMemo(
@@ -121,6 +125,10 @@ export default function Planet({ config, surface, tilted, children }: PlanetProp
     const r = config.orbitRadius
     orbit.current?.position.set(Math.cos(angle.current) * r, 0, -Math.sin(angle.current) * r)
     if (spin.current) spin.current.rotation.y += dt * config.spinSpeed
+    if (grow.current.value < 0.999) {
+      easing.damp(grow.current, 'value', 1, 0.6, dt)
+      orbit.current?.scale.setScalar(grow.current.value)
+    }
   })
 
   return (

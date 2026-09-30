@@ -27,7 +27,13 @@ const fragmentShader = /* glsl */ `
 `
 
 /** Soft cyan rim that fades in while the body is hovered or keyboard-focused. */
-export default function HoverGlow({ radius, interaction }: { radius: number; interaction: RefObject<InteractionState> }) {
+export default function HoverGlow({
+  radius,
+  interaction,
+}: {
+  radius: number
+  interaction: RefObject<InteractionState>
+}) {
   const material = useRef<ShaderMaterial>(null)
   const uniforms = useMemo(() => ({ uColor: { value: new Color('#8be9ff') }, uAmount: { value: 0 } }), [])
 

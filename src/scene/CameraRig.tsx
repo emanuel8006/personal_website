@@ -34,6 +34,10 @@ const FRAME_DISTANCE = 5.4
 /** Radians the camera swings off the Sun line, so focused planets read as 3/4 lit. */
 const VIEW_SWING = 0.7
 const IDLE_BEFORE_DRIFT = 4 // seconds
+/** Intro: start close on the Sun, then crane back to the opening shot. */
+const INTRO_START = new Vector3(0, 3, 32)
+const INTRO_DURATION = 5.5 // seconds
+const SKIP_DURATION = 0.9 // seconds: skipping mid-intro eases to the overview instead of cutting
 const DRIFT_SPEED = 0.012 // radians / second
 
 const OVERVIEW_LIMITS = { minDistance: 70, maxDistance: 330, minPolarAngle: 0.3, maxPolarAngle: 1.45 }
@@ -99,6 +103,12 @@ export default function CameraRig() {
     fromTarget: new Vector3(),
     lastInteraction: 0,
     devLocked: false,
+    /** Arc height as a fraction of flight distance. */
+    lift: 0.22,
+    /** The current flight is the intro crane-out (finishing it ends the intro). */
+    introFlight: false,
+    /** Camera is parked at the intro start pose, waiting for the scene to load. */
+    introPose: false,
   })
 
   // Setup: input mapping, overview limits, interaction tracking, store subscription
@@ -128,15 +138,27 @@ export default function CameraRig() {
       }
     }
 
+    // Full intro: park the camera close on the Sun while assets load (the black overlay hides it)
+    const initial = useAppStore.getState()
+    if (initial.introMode === 'full' && !initial.introSkipped && !r.devLocked) {
+      applyLimits(c, FREE_LIMITS)
+      c.setLookAt(INTRO_START.x, INTRO_START.y, INTRO_START.z, 0, 0, 0, false)
+      r.introPose = true
+    }
+    c.enabled = initial.intro === 'done'
+
     const markInteraction = () => {
       r.lastInteraction = performance.now() / 1000
     }
     c.addEventListener('controlstart', markInteraction)
     c.addEventListener('controlend', markInteraction)
 
-    const startFlight = (dest: SectionId | null) => {
+    const startFlight = (dest: SectionId | null, opts: { duration?: number; lift?: number; intro?: boolean } = {}) => {
       r.dest = dest
       r.devLocked = false
+      r.introPose = false
+      r.introFlight = Boolean(opts.intro)
+      r.lift = opts.lift ?? 0.22
       c.getPosition(r.fromPos)
       c.getTarget(r.fromTarget)
 
@@ -146,7 +168,7 @@ export default function CameraRig() {
       const distance = r.fromPos.distanceTo(endPos)
 
       // Reduced motion: effectively a cut (phase 7 adds a fade over it)
-      r.duration = prefersReducedMotion() ? 0.001 : MathUtils.clamp(1.5 + distance / 300, 1.5, 2)
+      r.duration = prefersReducedMotion() ? 0.001 : (opts.duration ?? MathUtils.clamp(1.5 + distance / 300, 1.5, 2))
       r.t = 0
       r.flying = true
       c.enabled = false
@@ -155,6 +177,18 @@ export default function CameraRig() {
     }
 
     const unsubscribe = useAppStore.subscribe((s, prev) => {
+      if (s.intro !== prev.intro) {
+        if (s.intro === 'playing') startFlight(null, { duration: INTRO_DURATION, lift: 0.06, intro: true })
+        else if (s.intro === 'done' && r.introFlight)
+          startFlight(null, { duration: SKIP_DURATION }) // skipped mid-intro
+        else if (s.intro === 'done' && r.introPose) {
+          // Skipped (or quick mode) before the intro began: jump straight to the overview
+          r.introPose = false
+          c.setLookAt(OVERVIEW_POS.x, OVERVIEW_POS.y, OVERVIEW_POS.z, 0, 0, 0, false)
+          applyLimits(c, OVERVIEW_LIMITS)
+        }
+        if (s.intro === 'done' && !r.flying && !s.section) c.enabled = true
+      }
       if (s.section !== prev.section) startFlight(s.section)
     })
 
@@ -170,6 +204,7 @@ export default function CameraRig() {
     if (!c) return
     const r = rig.current
     const cam = state.camera as PerspectiveCamera
+    if (r.introPose) return
 
     // Destination pose, recomputed every frame (bodies may still be moving)
     let hasDest = true
@@ -186,7 +221,7 @@ export default function CameraRig() {
 
       // Arc upward mid-flight: reads as a flight, and keeps the path clear of the Sun
       ctrl.lerpVectors(r.fromPos, endPos, 0.5)
-      ctrl.y += r.fromPos.distanceTo(endPos) * 0.22
+      ctrl.y += r.fromPos.distanceTo(endPos) * r.lift
       quadraticBezier(r.fromPos, ctrl, endPos, e, pos)
       target.lerpVectors(r.fromTarget, endTarget, e)
       c.setLookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, false)
@@ -195,9 +230,13 @@ export default function CameraRig() {
       flight.progress = r.t
       if (r.t >= 1) {
         r.flying = false
+        if (r.introFlight) {
+          r.introFlight = false
+          useAppStore.getState().finishIntro()
+        }
         if (!r.dest) {
           applyLimits(c, OVERVIEW_LIMITS)
-          c.enabled = true
+          c.enabled = useAppStore.getState().intro === 'done'
           r.lastInteraction = performance.now() / 1000
         }
       }
@@ -212,7 +251,8 @@ export default function CameraRig() {
 
     // Overview: slow ambient drift once the user has been idle for a moment
     const idle = performance.now() / 1000 - r.lastInteraction
-    if (!r.devLocked && idle > IDLE_BEFORE_DRIFT && !prefersReducedMotion()) {
+    const introDone = useAppStore.getState().intro === 'done'
+    if (introDone && !r.devLocked && !r.introPose && idle > IDLE_BEFORE_DRIFT && !prefersReducedMotion()) {
       c.rotate(dt * DRIFT_SPEED, 0, false)
     }
   })

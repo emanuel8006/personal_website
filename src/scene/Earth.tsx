@@ -90,14 +90,24 @@ function Clouds() {
     <group ref={ref}>
       <mesh raycast={() => null}>
         <sphereGeometry args={[config.radius * 1.008, 96, 48]} />
-        <meshStandardMaterial color="#ffffff" alphaMap={map} transparent opacity={0.92} roughness={1} metalness={0} depthWrite={false} />
+        <meshStandardMaterial
+          color="#ffffff"
+          alphaMap={map}
+          transparent
+          opacity={0.92}
+          roughness={1}
+          metalness={0}
+          depthWrite={false}
+        />
       </mesh>
     </group>
   )
 }
 
 export default function Earth() {
-  const fallback = <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+  const fallback = (
+    <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+  )
   return (
     <Planet
       config={config}
