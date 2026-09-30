@@ -1,0 +1,16 @@
+{
+  "sun": "/textures/sun.webp",
+  "mercury": "/textures/mercury.webp",
+  "earthDay": "/textures/earth_day.webp",
+  "earthNight": "/textures/earth_night.webp",
+  "earthClouds": "/textures/earth_clouds.webp",
+  "earthNormal": "/textures/earth_normal.webp",
+  "earthSpecular": "/textures/earth_specular.webp",
+  "moon": "/textures/moon.webp",
+  "mars": "/textures/mars.webp",
+  "jupiter": "/textures/jupiter.webp",
+  "saturn": "/textures/saturn.webp",
+  "saturnRing": "/textures/saturn_ring.png",
+  "starsMilkyWay": "/textures/stars_milkyway.webp",
+  "planetX": "/textures/planet_x.webp"
+}

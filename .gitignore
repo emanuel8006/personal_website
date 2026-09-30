@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Env files: secrets never committed (only the example)
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# Raw texture downloads (optimized output lives in public/textures/)
+/source-textures/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
