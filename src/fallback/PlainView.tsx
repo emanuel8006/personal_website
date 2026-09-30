@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { SECTIONS, SITE } from '../data/content'
 import { prefersReducedMotion } from '../hooks/useReducedMotion'
 import { availableSections, useAppStore, type SectionId } from '../store'
+import Credits from '../ui/Credits'
 import { SECTION_COMPONENTS } from '../ui/sections'
 import ViewToggle from '../ui/ViewToggle'
 import StarfieldBackground from './StarfieldBackground'
@@ -128,6 +129,7 @@ export default function PlainView() {
           <p>
             © {YEAR} {SITE.name}
           </p>
+          <Credits />
           {!planetXFound && (
             // The 2D view's easter egg (the Konami code works here too)
             <button

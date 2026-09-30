@@ -38,7 +38,14 @@ const LAYERS = [
  * slowly drifting; static for reduced motion) over a soft nebula gradient.
  */
 export default function StarfieldBackground() {
-  const layers = useMemo(() => LAYERS.map((l) => ({ ...l, shadow: starShadows(l.count, l.seed, l.size, l.alpha) })), [])
+  // Prerender (no window): skip the star layers; they're decoration and would add ~35 KB of inline styles
+  const layers = useMemo(
+    () =>
+      typeof window === 'undefined'
+        ? []
+        : LAYERS.map((l) => ({ ...l, shadow: starShadows(l.count, l.seed, l.size, l.alpha) })),
+    [],
+  )
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-space">

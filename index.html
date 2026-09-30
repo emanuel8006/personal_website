@@ -4,13 +4,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#05060f" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="dark" />
+
     <title>Emanuel Galindo Garcia · Portfolio</title>
-    <meta name="description" content="Portfolio of Emanuel Galindo Garcia, presented as an explorable solar system." />
+    <meta
+      name="description"
+      content="Emanuel Galindo Garcia, Computer Science and Mathematics student at Northeastern University. Explore projects, experience, and skills as an interactive 3D solar system."
+    />
+    <meta name="author" content="Emanuel Galindo Garcia" />
+    <!-- %SITE_URL% is filled in at build time (see scripts/vite-site-meta.ts) -->
+    <link rel="canonical" href="%SITE_URL%/" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph / social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Emanuel Galindo Garcia" />
+    <meta property="og:title" content="Emanuel Galindo Garcia · Portfolio" />
+    <meta
+      property="og:description"
+      content="Computer Science and Mathematics student at Northeastern. An explorable solar system where every planet is a section of my portfolio."
+    />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A glowing sun and planets on orbit lines, with the name Emanuel Galindo Garcia" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Emanuel Galindo Garcia · Portfolio" />
+    <meta
+      name="twitter:description"
+      content="Computer Science and Mathematics student at Northeastern. An explorable solar system where every planet is a section of my portfolio."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/og-image.png" />
+
+    <!-- The prerendered 2D content (for crawlers and no-JS visitors) is hidden as soon as JS runs -->
+    <script>
+      document.documentElement.classList.add('js')
+    </script>
+    <style>
+      html.js [data-prerendered] { display: none; }
+      html, body { background: #05060f; }
+    </style>
   </head>
   <body>
-    <noscript>This portfolio needs JavaScript to run. Enable it to explore the solar system.</noscript>
-    <div id="root"></div>
+    <noscript>
+      <p style="margin:0;padding:12px 16px;background:#11142b;color:#e2e8f0;font:14px/1.5 system-ui,sans-serif;text-align:center">
+        You're seeing the simple, JavaScript-free version of this portfolio. Enable JavaScript for the interactive
+        solar system and the contact form.
+      </p>
+    </noscript>
+    <div id="root"><!--prerender--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

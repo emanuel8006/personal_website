@@ -16,6 +16,7 @@ export function useKeyboardNav() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return
+      if (document.querySelector('dialog[open]')) return // a modal handles its own keys
       const { section, closeSection, stepSection, intro, introMode, skipIntro } = useAppStore.getState()
       if (e.key === 'Escape' && intro !== 'done' && introMode === 'full') {
         e.preventDefault()

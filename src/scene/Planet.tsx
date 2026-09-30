@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
-import { Suspense, useMemo, useRef, type ReactNode } from 'react'
+import { Suspense, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import type { Group, Texture } from 'three'
 import Atmosphere from './Atmosphere'
 import type { MoonConfig, PlanetConfig } from './bodies'
@@ -22,21 +22,34 @@ export function SurfaceMesh({ radius, map, tint }: { radius: number; map: Textur
   )
 }
 
+/**
+ * Surface using a procedural texture, generated only when this actually renders
+ * (texture missing or failed). CPU noise is too costly to build up front.
+ */
+export function LazySurfaceMesh({ radius, getMap, tint }: { radius: number; getMap: () => Texture; tint?: string }) {
+  return <SurfaceMesh radius={radius} map={getMap()} tint={tint} />
+}
+
 function TexturedSurface({ radius, textureKey, fallback, tint }: SurfaceProps) {
   const { map } = useBodyTextures({ map: textureKey })
-  return <SurfaceMesh radius={radius} map={map ?? fallback} tint={tint} />
+  return map ? (
+    <SurfaceMesh radius={radius} map={map} tint={tint} />
+  ) : (
+    <LazySurfaceMesh radius={radius} getMap={fallback} tint={tint} />
+  )
 }
 
 interface SurfaceProps {
   radius: number
   textureKey: TextureKey
-  fallback: Texture
+  /** Procedural texture factory, only called if the real texture is missing or fails. */
+  fallback: () => Texture
   tint?: string
 }
 
 /** Texture if available, procedural surface if missing or failed. */
 export function Surface(props: SurfaceProps) {
-  const fallback = <SurfaceMesh radius={props.radius} map={props.fallback} tint={props.tint} />
+  const fallback = <LazySurfaceMesh radius={props.radius} getMap={props.fallback} tint={props.tint} />
   return (
     <TextureBoundary fallback={fallback}>
       <Suspense fallback={null}>
@@ -50,7 +63,7 @@ export function Surface(props: SurfaceProps) {
 export function Moon({ config, textureKey = 'moon' }: { config: MoonConfig; textureKey?: TextureKey }) {
   const ref = useRef<Group>(null)
   const angle = useRef(config.phase)
-  const fallback = useMemo(() => proceduralSurface('rocky', ['#6d6a66', '#9a958e', '#4a4744'], 9), [])
+  const fallback = useCallback(() => proceduralSurface('rocky', ['#6d6a66', '#9a958e', '#4a4744'], 9), [])
 
   useFrame((_, dt) => {
     angle.current += dt * config.speed * simulation.orbitSpeed
@@ -115,7 +128,7 @@ export default function Planet({ config, surface, tilted, children, appear = fal
   const grow = useRef({ value: appear ? 0.001 : 1 })
   const interaction = useBodyInteraction(config.id, orbit, body)
   const handlers = useMemo(() => bodyPointerHandlers(config.id), [config.id])
-  const fallback = useMemo(
+  const fallback = useCallback(
     () => proceduralSurface(config.fallback.style, config.fallback.colors),
     [config.fallback.style, config.fallback.colors],
   )

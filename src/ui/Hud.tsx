@@ -4,6 +4,7 @@ import { useKeyboardNav } from '../hooks/useKeyboardNav'
 import { useAppStore } from '../store'
 import BackButton from './BackButton'
 import ContentPanel from './ContentPanel'
+import Credits from './Credits'
 import Minimap from './Minimap'
 import Nav from './Nav'
 import Tooltip from './Tooltip'
@@ -45,6 +46,9 @@ export default function Hud() {
         </header>
         <div className="absolute bottom-4 left-4 hidden md:block sm:bottom-6 sm:left-6">
           <Minimap />
+        </div>
+        <div className="pointer-events-auto absolute right-4 bottom-4 sm:right-6 sm:bottom-6">
+          <Credits />
         </div>
       </motion.div>
       <ContentPanel />

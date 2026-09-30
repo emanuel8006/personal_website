@@ -1,6 +1,6 @@
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { easing } from 'maath'
-import { useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import type { Group } from 'three'
 import { PROJECTS, type Project } from '../data/content'
 import { useAppStore } from '../store'
@@ -24,7 +24,7 @@ function ProjectMoon({ project, index }: { project: Project; index: number }) {
   const body = useRef<Group>(null)
   const angle = useRef(config.phase)
   const interaction = useRef<InteractionState>({ hover: 0, orbit: 1, dim: 1 })
-  const fallback = useMemo(() => proceduralSurface('rocky', ['#6d6a66', '#9a958e', '#4a4744'], 9), [])
+  const fallback = useCallback(() => proceduralSurface('rocky', ['#6d6a66', '#9a958e', '#4a4744'], 9), [])
 
   useFrame((_, dt) => {
     const { hoveredProject, activeProject, section } = useAppStore.getState()

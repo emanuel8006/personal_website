@@ -37,27 +37,29 @@ function probeWebGL(): { ok: boolean; renderer: string } {
 }
 
 export function detectCapability(): Capability {
-  const { ok, renderer } = probeWebGL()
-  const r = renderer.toLowerCase()
-  const software = /swiftshader|llvmpipe|softpipe|software|basic render/.test(r)
+  // Prerender / SSR: no browser, so describe the static 2D page
+  if (typeof window === 'undefined') return { view: '2d', maxTier: 'low', can3D: false }
+
+  // Cheap checks first: phones never need the (expensive) WebGL probe
   const smallScreen = window.innerWidth < 768 || (mq('(pointer: coarse)') && !mq('(pointer: fine)'))
-  const can3D = ok && !smallScreen
+  if (smallScreen) return { view: '2d', reason: 'small-screen', maxTier: 'low', can3D: false }
+
+  const { ok, renderer } = probeWebGL()
+  const twoD = (reason: FallbackReason): Capability => ({ view: '2d', reason, maxTier: 'low', can3D: ok })
+  if (!ok) return twoD('no-webgl')
 
   const cores = navigator.hardwareConcurrency ?? 8
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8
+  const r = renderer.toLowerCase()
 
-  const twoD = (reason: FallbackReason): Capability => ({ view: '2d', reason, maxTier: 'low', can3D })
-
-  if (!ok) return twoD('no-webgl')
-  if (smallScreen) return twoD('small-screen')
   if (mq('(prefers-reduced-data: reduce)')) return twoD('reduced-data')
   if (cores <= 2 || memory <= 2) return twoD('low-end')
-  if (software) return twoD('software-gpu')
+  if (/swiftshader|llvmpipe|softpipe|software|basic render/.test(r)) return twoD('software-gpu')
 
   let maxTier: QualityTier = 'high'
   if (cores <= 4 || memory <= 4) maxTier = 'low'
   else if (/intel|mali|adreno|powervr/.test(r) && !/arc/.test(r)) maxTier = 'medium' // integrated GPUs
-  return { view: '3d', maxTier, can3D }
+  return { view: '3d', maxTier, can3D: true }
 }
 
 /** Per-tier render settings, in one place. */

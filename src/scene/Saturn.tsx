@@ -13,7 +13,7 @@ import {
 import { SKILLS } from '../data/content'
 import { useAppStore } from '../store'
 import { PLANETS, SATURN_RING } from './bodies'
-import Planet, { SurfaceMesh } from './Planet'
+import Planet, { LazySurfaceMesh } from './Planet'
 import { proceduralRing, proceduralSurface } from './procedural'
 import TextureBoundary from './TextureBoundary'
 import { useBodyTextures } from './useBodyTextures'
@@ -148,6 +148,11 @@ function RingMesh({ map }: { map: Texture }) {
   )
 }
 
+/** Ring fallback, generated only if it actually renders. */
+function ProceduralRings() {
+  return <RingMesh map={proceduralRing()} />
+}
+
 function TexturedRings() {
   const { map } = useBodyTextures({ map: 'saturnRing' })
   return <RingMesh map={map ?? proceduralRing()} />
@@ -239,7 +244,10 @@ function RingFrameTracker() {
 
 export default function Saturn() {
   const fallbackSurface = (
-    <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+    <LazySurfaceMesh
+      radius={config.radius}
+      getMap={() => proceduralSurface(config.fallback.style, config.fallback.colors)}
+    />
   )
 
   return (
@@ -255,7 +263,7 @@ export default function Saturn() {
       tilted={
         <>
           <RingFrameTracker />
-          <TextureBoundary fallback={<RingMesh map={proceduralRing()} />}>
+          <TextureBoundary fallback={<ProceduralRings />}>
             <Suspense fallback={null}>
               <TexturedRings />
             </Suspense>

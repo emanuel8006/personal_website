@@ -71,7 +71,7 @@ interface AppState {
   hoveredSocial: string | null
   /** The special asteroid (Planet X easter egg) is under the pointer. */
   hoveredAsteroid: boolean
-  toast: { id: number; message: string } | null
+  toast: { id: number; message: string; visible: boolean } | null
 
   openSection: (id: SectionId) => void
   closeSection: () => void
@@ -241,7 +241,11 @@ export const useAppStore = create<AppState>()((set, get) => {
     setHoveredSkill: (hoveredSkill) => set({ hoveredSkill }),
     setHoveredSocial: (hoveredSocial) => set({ hoveredSocial }),
     setHoveredAsteroid: (hoveredAsteroid) => set({ hoveredAsteroid }),
-    showToast: (message) => set({ toast: { id: Date.now(), message } }),
-    dismissToast: () => set({ toast: null }),
+    showToast: (message) => set({ toast: { id: Date.now(), message, visible: true } }),
+    // Keep the message while it fades out
+    dismissToast: () => {
+      const { toast } = get()
+      if (toast) set({ toast: { ...toast, visible: false } })
+    },
   }
 })

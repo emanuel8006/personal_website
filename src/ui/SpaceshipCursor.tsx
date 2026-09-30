@@ -11,6 +11,8 @@ import { useReducedMotion } from '../hooks/useReducedMotion'
 
 const FINE_POINTER = '(hover: hover) and (pointer: fine)'
 const EDITABLE = 'input, textarea, select, [contenteditable="true"]'
+/** Modal dialogs render in the top layer, above this canvas: use the native cursor there. */
+const NATIVE_CURSOR = `${EDITABLE}, dialog[open]`
 const INTERACTIVE = 'a, button, [role="button"], label, summary, [tabindex]:not([tabindex="-1"])'
 const MAX_PARTICLES = 70
 
@@ -215,7 +217,7 @@ export default function SpaceshipCursor() {
       pointer.seen = true
       pointer.inside = true
       const target = e.target instanceof Element ? e.target : null
-      pointer.overField = Boolean(target?.closest(EDITABLE))
+      pointer.overField = Boolean(target?.closest(NATIVE_CURSOR))
       pointer.hot = Boolean(target?.closest(INTERACTIVE)) || document.body.style.cursor === 'pointer'
       lastMove = performance.now()
       wake()

@@ -2,14 +2,11 @@ import { lazy, Suspense } from 'react'
 import PlainView from './fallback/PlainView'
 import { useKonami } from './hooks/useKonami'
 import { useAppStore } from './store'
-import FadeCut from './ui/FadeCut'
-import Hud from './ui/Hud'
-import IntroOverlay from './ui/IntroOverlay'
 import SpaceshipCursor from './ui/SpaceshipCursor'
 import Toast from './ui/Toast'
 
-// three.js + R3F live in their own chunk so the 2D view never downloads them.
-const Scene = lazy(() => import('./scene/Scene'))
+// The 3D experience (HUD, panel, intro, scene) is split out: 2D visitors never download it.
+const ThreeDView = lazy(() => import('./ThreeDView'))
 
 export default function App() {
   const viewMode = useAppStore((s) => s.viewMode)
@@ -19,14 +16,9 @@ export default function App() {
   return (
     <>
       {viewMode === '3d' ? (
-        <main className="fixed inset-0 bg-space">
-          <Suspense fallback={null}>
-            <Scene />
-          </Suspense>
-          <Hud />
-          <FadeCut />
-          <IntroOverlay />
-        </main>
+        <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
+          <ThreeDView />
+        </Suspense>
       ) : (
         <PlainView />
       )}

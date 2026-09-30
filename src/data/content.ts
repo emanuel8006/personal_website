@@ -175,14 +175,14 @@ export const EDUCATION: EducationEntry[] = [
       'Computer Systems',
       'Linear Algebra',
       'Matrix Methods for Data Analysis and Machine Learning',
-      'Projects in Cloud Computing (AWS)',
+      'Projects in Cloud Computing',
     ],
     honors: ['John Martinson Honors Program', "Dean's List"],
     clubs: [
+      'Northeastern Electric Racing: App Software',
       'Association of Latino Professionals for America (ALPFA)',
       'ColorStack',
       'Oasis',
-      'Northeastern Electric Racing: Software',
     ],
   },
   {
@@ -246,7 +246,7 @@ export const PROJECTS: Project[] = [
       { label: 'Performance', value: 'Two-layer TTL cache cuts redundant external API calls' },
       { label: 'Reliability', value: 'curl_cffi browser impersonation fixed cross-device 403 errors' },
     ],
-    tech: ['Python', 'FastAPI', 'React', 'Vite', 'Supabase', 'PostgreSQL'],
+    tech: ['Python', 'FastAPI', 'React', 'Vite', 'Supabase', 'PostgreSQL', 'Render'],
     links: {}, // TODO: add github / demo URLs if public
     accent: '#f6c177',
   },
@@ -290,20 +290,20 @@ export const PROJECTS: Project[] = [
 const plain = (...names: string[]) => names.map((name) => ({ name }))
 
 export const SKILLS: SkillCategory[] = [
-  { name: 'Languages', skills: plain('Python', 'Java', 'JavaScript', 'C', 'Lean') },
+  { name: 'Languages', skills: plain('Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'Lean') },
   { name: 'Backend & Web', skills: plain('FastAPI', 'Flask', 'React', 'Vite', 'Streamlit', 'REST APIs', 'curl_cffi') },
   {
     name: 'Data',
     skills: plain('Pandas', 'NumPy', 'Matplotlib', 'ETL pipelines', 'PostgreSQL', 'MySQL', 'Supabase'),
   },
-  { name: 'Cloud & DevOps', skills: plain('AWS', 'AWS Lambda', 'Docker') },
-  { name: 'Developer Tools', skills: plain('Git', 'GitHub', 'Visual Studio Code', 'IntelliJ IDEA', 'DataGrip') },
+  { name: 'Cloud & DevOps', skills: plain('Docker', 'AWS',) },
+  { name: 'Developer Tools', skills: plain('Git', 'GitHub', 'Visual Studio Code', 'IntelliJ IDEA', 'DataGrip', 'PyCharm') },
 ]
 
 export const CONTACT: Contact = {
   intro:
     "I'm looking for a Spring 2027 (January to June) co-op or summer internship in software engineering or data analytics. The fastest way to reach me is the form below.",
-  publicEmail: undefined, // TODO: optional, e.g. 'you@northeastern.edu'
+  publicEmail: 'galindogarcia.e@northeastern.edu',
   socials: [
     { kind: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/emanuel-galindo-garcia' },
     { kind: 'github', label: 'GitHub', href: 'https://github.com/emanuel8006' },
@@ -313,12 +313,45 @@ export const CONTACT: Contact = {
 
 export const PERSONAL: Personal = {
   blurb: [
-    "Off the clock you'll find me hiking, watching sci-fi shows, or reading about space exploration (which probably explains this website). I'm also interested in artificial intelligence and in digital inclusion: making technology work for everyone.",
+    "Off the clock you'll find me hiking, watching sci-fi shows, watching videos about true-crime, and learning about space exploration (which probably explains this website). I'm also interested in artificial intelligence and in digital inclusion: making technology work for everyone.",
   ],
   hobbies: ['Hiking', 'Sci-fi shows', 'Space exploration', 'Artificial intelligence', 'Digital inclusion'],
   funFacts: [
+    // TODO: 
     'Before Northeastern, I co-led software for my high school FIRST Robotics team.',
     'One of the languages I know is Lean, which doubles as a theorem prover for math proofs.',
     '[PLACEHOLDER] Something surprising about you that is not on your resume',
   ],
 }
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* Credits (shown in the Credits dialog and the README)                       */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+export interface Credit {
+  what: string
+  who: string
+  href: string
+  license: string
+}
+
+export const CREDITS: Credit[] = [
+  {
+    what: 'Planet, Sun, Moon, ring and star-map textures',
+    who: 'Solar System Scope, based on NASA imagery',
+    href: 'https://www.solarsystemscope.com/textures/',
+    license: 'CC BY 4.0',
+  },
+  {
+    what: 'Fonts: Space Grotesk, Inter, JetBrains Mono',
+    who: 'Florian Karsten; Rasmus Andersson; JetBrains (via Fontsource)',
+    href: 'https://fontsource.org',
+    license: 'SIL Open Font License 1.1',
+  },
+  {
+    what: '3D rendering',
+    who: 'three.js, React Three Fiber, drei, postprocessing',
+    href: 'https://github.com/pmndrs/react-three-fiber',
+    license: 'MIT',
+  },
+]

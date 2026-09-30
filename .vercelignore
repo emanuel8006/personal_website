@@ -1,0 +1,7 @@
+# Never upload local secrets or raw assets with `vercel` CLI deploys
+.env*
+!.env.example
+source-textures/
+node_modules/
+dist/
+.vercel/

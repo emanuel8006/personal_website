@@ -2,10 +2,11 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { devApi } from './scripts/vite-dev-api.ts'
+import { siteMeta } from './scripts/vite-site-meta.ts'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), devApi()],
+  plugins: [react(), tailwindcss(), devApi(), siteMeta()],
   build: {
     // three.js core is ~700 kB minified on its own and can't be split further.
     // It only loads with the lazy 3D scene (never in the 2D view), so the

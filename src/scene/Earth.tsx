@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { Color, MeshStandardMaterial, Vector2, type Group } from 'three'
 import { EARTH_MOON, PLANETS } from './bodies'
-import Planet, { Moon, SurfaceMesh } from './Planet'
+import Planet, { LazySurfaceMesh, Moon } from './Planet'
 import { proceduralClouds, proceduralSurface } from './procedural'
 import TextureBoundary from './TextureBoundary'
 import { useBodyTextures } from './useBodyTextures'
@@ -106,7 +106,10 @@ function Clouds() {
 
 export default function Earth() {
   const fallback = (
-    <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+    <LazySurfaceMesh
+      radius={config.radius}
+      getMap={() => proceduralSurface(config.fallback.style, config.fallback.colors)}
+    />
   )
   return (
     <Planet

@@ -155,7 +155,7 @@ export function radialGlow() {
 export function coronaRays(seed = 11) {
   let tex = cache.get('rays')
   if (!tex) {
-    const size = 512
+    const size = 256 // soft, sprite-scaled streaks: 256² is plenty and 4× cheaper to generate
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = size
     const ctx = canvas.getContext('2d')!
