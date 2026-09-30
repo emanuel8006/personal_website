@@ -8,7 +8,8 @@ function isEditable(target: EventTarget | null) {
 }
 
 /**
- * Global shortcuts: Escape closes the open section; ←/→ step to the
+ * Global shortcuts: Escape closes the open section (or first leaves a
+ * focused form field); ←/→ step to the
  * previous/next section while one is open. (↑/↓ stay free for scrolling.)
  */
 export function useKeyboardNav() {
@@ -20,7 +21,9 @@ export function useKeyboardNav() {
 
       if (e.key === 'Escape') {
         e.preventDefault()
-        closeSection()
+        // In a form field, the first Escape just leaves the field (don't lose a half-written message)
+        if (isEditable(e.target)) (e.target as HTMLElement).blur()
+        else closeSection()
       } else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !isEditable(e.target)) {
         e.preventDefault()
         stepSection(e.key === 'ArrowRight' ? 1 : -1)

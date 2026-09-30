@@ -24,6 +24,8 @@ interface AppState {
   hoveredProject: string | null
   /** Index of the skill category whose Saturn ring band is highlighted. */
   hoveredSkill: number | null
+  /** Social link (by href) whose Mercury satellite is highlighted. */
+  hoveredSocial: string | null
 
   openSection: (id: SectionId) => void
   closeSection: () => void
@@ -37,6 +39,7 @@ interface AppState {
   focusProject: (id: string) => void
   setHoveredProject: (id: string | null) => void
   setHoveredSkill: (index: number | null) => void
+  setHoveredSocial: (href: string | null) => void
 }
 
 /** Sections currently reachable (Planet X only after discovery), in nav order. */
@@ -55,6 +58,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   activeProject: null,
   hoveredProject: null,
   hoveredSkill: null,
+  hoveredSocial: null,
 
   // Opening/stepping clears hover so a stale tooltip doesn't linger over the new view
   openSection: (id) => set({ section: id, hovered: null, activeProject: null }),
@@ -74,4 +78,5 @@ export const useAppStore = create<AppState>()((set, get) => ({
   focusProject: (id) => set({ section: 'projects', activeProject: id, hovered: null, hoveredProject: null }),
   setHoveredProject: (hoveredProject) => set({ hoveredProject }),
   setHoveredSkill: (hoveredSkill) => set({ hoveredSkill }),
+  setHoveredSocial: (hoveredSocial) => set({ hoveredSocial }),
 }))

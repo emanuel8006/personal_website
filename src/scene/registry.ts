@@ -15,6 +15,14 @@ export function registerMoon(id: string, object: Object3D | null, radius: number
   else moonRegistry.delete(id)
 }
 
+/** Social-link satellites orbiting Mercury, by href (for tooltips). */
+export const satelliteRegistry = new Map<string, { object: Object3D; radius: number }>()
+
+export function registerSatellite(href: string, object: Object3D | null, radius: number) {
+  if (object) satelliteRegistry.set(href, { object, radius })
+  else satelliteRegistry.delete(href)
+}
+
 export function registerBody(id: SectionId, object: Object3D | null, radius: number) {
   if (object) bodyRegistry.set(id, { object, radius })
   else bodyRegistry.delete(id)

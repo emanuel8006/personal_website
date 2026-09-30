@@ -73,10 +73,16 @@ export function useBodyInteraction(
   return state
 }
 
-/** Pointer handlers for a body's invisible hit sphere. */
+/**
+ * Pointer handlers for a body's invisible hit sphere. While its own section is
+ * open the body is "transparent" to the pointer, so its satellites and moons
+ * (which may sit behind the generous hit sphere) receive hover and clicks.
+ */
 export function bodyPointerHandlers(id: SectionId) {
+  const isFocused = () => useAppStore.getState().section === id
   return {
     onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+      if (isFocused()) return
       e.stopPropagation()
       useAppStore.getState().setHovered(id)
       document.body.style.cursor = 'pointer'
@@ -86,6 +92,7 @@ export function bodyPointerHandlers(id: SectionId) {
       document.body.style.cursor = ''
     },
     onClick: (e: ThreeEvent<MouseEvent>) => {
+      if (isFocused()) return
       e.stopPropagation()
       if (e.delta > CLICK_SLOP) return // was a camera drag
       useAppStore.getState().openSection(id)

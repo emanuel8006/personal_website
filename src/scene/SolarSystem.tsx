@@ -7,6 +7,7 @@ import Planet, { OrbitLine } from './Planet'
 import ProjectMoons from './ProjectMoons'
 import { simulation } from './registry'
 import Saturn from './Saturn'
+import SocialSatellites from './SocialSatellites'
 import Sun from './Sun'
 
 function OrbitClock() {
@@ -28,7 +29,9 @@ export default function SolarSystem() {
       <Sun />
 
       <OrbitLine radius={PLANETS.contact.orbitRadius} />
-      <Planet config={PLANETS.contact} />
+      <Planet config={PLANETS.contact}>
+        <SocialSatellites />
+      </Planet>
 
       <OrbitLine radius={PLANETS.education.orbitRadius} />
       <Earth />

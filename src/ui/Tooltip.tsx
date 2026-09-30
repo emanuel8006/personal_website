@@ -1,12 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { PROJECTS, SECTIONS } from '../data/content'
+import { CONTACT, PROJECTS, SECTIONS } from '../data/content'
 import { useAppStore } from '../store'
 import { hud } from './hudRefs'
 
 function useTooltipContent() {
   const hovered = useAppStore((s) => s.hovered)
   const hoveredProject = useAppStore((s) => s.hoveredProject)
+  const hoveredSocial = useAppStore((s) => s.hoveredSocial)
   const section = useAppStore((s) => s.section)
+
+  if (hoveredSocial) {
+    const link = CONTACT.socials.find((x) => x.href === hoveredSocial)
+    const where = link ? link.href.replace(/^(https?:\/\/|mailto:)(www\.)?/, '').replace(/\/$/, '') : ''
+    return link
+      ? { key: `sat:${link.href}`, eyebrow: 'Satellite of Mercury · Contact', title: link.label, line: where }
+      : null
+  }
 
   if (hoveredProject) {
     // Card hovered inside the open Projects panel: the moon glows, no tooltip needed

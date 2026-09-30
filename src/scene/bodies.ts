@@ -67,8 +67,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     spinSpeed: 0.05,
     texture: 'mercury',
     fallback: { style: 'rocky', colors: ['#5f5a55', '#8c857c', '#3d3a37'] },
-    frameRadius: 3.6,
-    hitRadius: 3.6,
+    frameRadius: 4.6,
+    hitRadius: 3,
   },
   education: {
     id: 'education',
@@ -170,6 +170,9 @@ export function projectMoonConfig(index: number, tint: string): MoonConfig {
     tint,
   }
 }
+
+/** Social-link satellites around Mercury: ring radius (world units), tilt, speed (rad/s). */
+export const MERCURY_SATELLITES = { distance: 3.9, tilt: (18 * Math.PI) / 180, speed: 0.32 }
 
 export function frameRadius(id: SectionId) {
   return id === 'about' ? SUN_FRAME_RADIUS : PLANETS[id].frameRadius
