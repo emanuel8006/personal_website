@@ -34,7 +34,8 @@ export const useAppStore = create<AppState>()((set) => ({
   intro: 'loading',
   quality: 'high',
   viewMode: '3d',
-  planetXFound: false,
+  // Dev convenience: ?planetx reveals Planet X without hunting for it
+  planetXFound: import.meta.env.DEV && new URLSearchParams(location.search).has('planetx'),
 
   openSection: (id) => set({ section: id }),
   closeSection: () => set({ section: null }),

@@ -65,10 +65,11 @@ const fragmentShader = /* glsl */ `
     // faint navy floor keeps the empty sky from reading as pure black
     vec3 floorTint = vec3(0.003, 0.004, 0.012);
     gl_FragColor = vec4(col * density * uIntensity + floorTint, 1.0);
+    #include <colorspace_fragment>
   }
 `
 
-export default function Nebula({ radius = 900, intensity = 1.1 }: { radius?: number; intensity?: number }) {
+export default function Nebula({ radius = 900, intensity = 0.42 }: { radius?: number; intensity?: number }) {
   const uniforms = useMemo(
     () => ({
       uColorA: { value: new Color('#4a2385') }, // deep violet

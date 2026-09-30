@@ -2,6 +2,8 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import CameraRig from './CameraRig'
 import { OVERVIEW_POSITION } from './constants'
+import Effects from './Effects'
+import SolarSystem from './SolarSystem'
 import Starfield from './Starfield'
 
 export default function Scene() {
@@ -9,14 +11,17 @@ export default function Scene() {
     <Canvas
       dpr={[1, 2]}
       camera={{ fov: 45, near: 0.1, far: 4000, position: OVERVIEW_POSITION }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      // MSAA happens in the EffectComposer; canvas-level AA would be wasted work
+      gl={{ antialias: false, powerPreference: 'high-performance' }}
       aria-hidden="true"
     >
       <color attach="background" args={['#05060f']} />
       <Suspense fallback={null}>
         <Starfield />
+        <SolarSystem />
       </Suspense>
       <CameraRig />
+      <Effects />
     </Canvas>
   )
 }
