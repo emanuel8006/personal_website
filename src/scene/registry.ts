@@ -7,6 +7,14 @@ import type { SectionId } from '../store'
  */
 export const bodyRegistry = new Map<SectionId, { object: Object3D; radius: number }>()
 
+/** Project moons orbiting Jupiter, by project id (for tooltips). */
+export const moonRegistry = new Map<string, { object: Object3D; radius: number }>()
+
+export function registerMoon(id: string, object: Object3D | null, radius: number) {
+  if (object) moonRegistry.set(id, { object, radius })
+  else moonRegistry.delete(id)
+}
+
 export function registerBody(id: SectionId, object: Object3D | null, radius: number) {
   if (object) bodyRegistry.set(id, { object, radius })
   else bodyRegistry.delete(id)

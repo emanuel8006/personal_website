@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import { useAppStore } from '../store'
 import { hud } from '../ui/hudRefs'
-import { bodyRegistry } from './registry'
+import { bodyRegistry, moonRegistry } from './registry'
 
 const GAP = 14 // px between the body's edge and the tooltip
 const MARGIN = 12 // px from the viewport edge
@@ -21,8 +21,13 @@ export default function HoverTracker() {
   useFrame(({ camera, size }) => {
     const el = hud.tooltip
     if (!el) return
-    const id = useAppStore.getState().hovered
-    const entry = id ? bodyRegistry.get(id) : undefined
+    // A hovered project moon takes precedence over its planet
+    const { hovered, hoveredProject } = useAppStore.getState()
+    const entry = hoveredProject
+      ? moonRegistry.get(hoveredProject)
+      : hovered
+        ? bodyRegistry.get(hovered)
+        : undefined
     if (!entry) return
 
     entry.object.getWorldPosition(center)

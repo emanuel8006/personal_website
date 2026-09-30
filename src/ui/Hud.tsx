@@ -1,6 +1,7 @@
 import { SITE } from '../data/content'
 import { useKeyboardNav } from '../hooks/useKeyboardNav'
 import BackButton from './BackButton'
+import ContentPanel from './ContentPanel'
 import Nav from './Nav'
 import Tooltip from './Tooltip'
 
@@ -20,6 +21,7 @@ export default function Hud() {
         </div>
         <BackButton />
       </header>
+      <ContentPanel />
       <Tooltip />
     </div>
   )

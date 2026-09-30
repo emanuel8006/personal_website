@@ -23,9 +23,11 @@ export default function Nav() {
                 onClick={() => openSection(id)}
                 onMouseEnter={() => setHovered(id)}
                 onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(id)}
+                // Only keyboard focus previews the planet (not focus restored after a mouse click)
+                onFocus={(e) => e.currentTarget.matches(':focus-visible') && setHovered(id)}
                 onBlur={() => setHovered(null)}
                 aria-current={active ? 'true' : undefined}
+                data-nav-section={id}
                 className={`rounded px-2 py-1 font-mono text-[11px] tracking-[0.18em] uppercase transition-colors focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none ${
                   active ? 'text-cyan' : 'text-slate-300 hover:text-white'
                 }`}

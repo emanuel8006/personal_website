@@ -1,9 +1,10 @@
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { useAppStore } from '../store'
-import { JUPITER_MOONS_PLACEHOLDER, PLANETS } from './bodies'
+import { PLANETS } from './bodies'
 import Earth from './Earth'
-import Planet, { Moon, OrbitLine } from './Planet'
+import Planet, { OrbitLine } from './Planet'
+import ProjectMoons from './ProjectMoons'
 import { simulation } from './registry'
 import Saturn from './Saturn'
 import Sun from './Sun'
@@ -37,9 +38,7 @@ export default function SolarSystem() {
 
       <OrbitLine radius={PLANETS.projects.orbitRadius} />
       <Planet config={PLANETS.projects}>
-        {JUPITER_MOONS_PLACEHOLDER.map((moon, i) => (
-          <Moon key={i} config={moon} />
-        ))}
+        <ProjectMoons />
       </Planet>
 
       <OrbitLine radius={PLANETS.skills.orbitRadius} />

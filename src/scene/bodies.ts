@@ -157,15 +157,19 @@ export const EARTH_MOON: MoonConfig = { radius: 0.85, distance: 6, speed: 0.35, 
 export const SATURN_RING = { inner: 1.25, outer: 2.35 }
 
 /**
- * Placeholder Jupiter moons. Phase 4 derives these from the projects in
- * src/data/content.ts (one moon per project).
+ * One moon per project (src/data/content.ts), spaced outward from Jupiter.
+ * Golden-angle phases keep them spread out regardless of how many there are.
  */
-export const JUPITER_MOONS_PLACEHOLDER: MoonConfig[] = [
-  { radius: 0.7, distance: 10.5, speed: 0.42, phase: deg(20), inclination: deg(4), tint: '#e8d6a0' },
-  { radius: 0.62, distance: 12.5, speed: 0.33, phase: deg(140), inclination: deg(-3), tint: '#d9d2c5' },
-  { radius: 0.85, distance: 14.6, speed: 0.26, phase: deg(250), inclination: deg(2), tint: '#b7a58c' },
-  { radius: 0.75, distance: 16.8, speed: 0.2, phase: deg(320), inclination: deg(-5), tint: '#8f8577' },
-]
+export function projectMoonConfig(index: number, tint: string): MoonConfig {
+  return {
+    radius: 0.62 + ((index * 37) % 4) * 0.07,
+    distance: 10.5 + index * 2.1,
+    speed: 0.42 / (1 + index * 0.3),
+    phase: index * 2.39996,
+    inclination: deg((index % 2 ? -1 : 1) * (2 + (index % 3) * 1.5)),
+    tint,
+  }
+}
 
 export function frameRadius(id: SectionId) {
   return id === 'about' ? SUN_FRAME_RADIUS : PLANETS[id].frameRadius

@@ -1,6 +1,17 @@
 import { useFrame } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react'
-import { DoubleSide, MeshStandardMaterial, RingGeometry, Vector3, type Group, type Texture } from 'three'
+import { easing } from 'maath'
+import {
+  DoubleSide,
+  MeshStandardMaterial,
+  RingGeometry,
+  Vector3,
+  type Group,
+  type ShaderMaterial,
+  type Texture,
+} from 'three'
+import { SKILLS } from '../data/content'
+import { useAppStore } from '../store'
 import { PLANETS, SATURN_RING } from './bodies'
 import Planet, { SurfaceMesh } from './Planet'
 import { proceduralRing, proceduralSurface } from './procedural'
@@ -54,6 +65,9 @@ const ringFragment = /* glsl */ `
   uniform vec3 uPlanetCenter;
   uniform float uPlanetRadius;
   uniform float uDim;
+  uniform float uBandCount;  // one band per skill category, inner → outer
+  uniform float uBand;       // highlighted band index
+  uniform float uBandAmount; // 0..1 highlight strength
   varying vec2 vUv;
   varying vec3 vPosW;
   varying vec3 vNormalW;
@@ -76,26 +90,54 @@ const ringFragment = /* glsl */ `
     // the Solar System Scope strip is dark grey (avg sRGB ~100): lift and warm it
     // toward Saturn's creamy ring color
     vec3 ringColor = tex.rgb * vec3(1.15, 1.03, 0.86) * 2.4;
-    gl_FragColor = vec4(ringColor * brightness * mix(0.08, 1.0, shadow) * uDim, tex.a * 0.95);
+
+    // Skill-category highlight: brighten + tint the hovered band, recede the rest.
+    // A faint minimum alpha lets the band read even across the ring's gaps.
+    float bandIdx = floor(clamp(vUv.x, 0.0, 0.9999) * uBandCount);
+    float inBand = step(abs(bandIdx - uBand), 0.1);
+    vec3 glow = vec3(0.37, 0.9, 1.0);
+    ringColor = mix(ringColor * (1.0 - 0.5 * uBandAmount), mix(ringColor, glow * dot(ringColor, vec3(0.33)) * 1.9, 0.55 * uBandAmount) + glow * 0.35 * uBandAmount, inBand);
+    float alpha = max(tex.a * 0.95, inBand * uBandAmount * 0.3);
+
+    gl_FragColor = vec4(ringColor * brightness * mix(0.08, 1.0, shadow) * uDim, alpha);
     #include <colorspace_fragment>
   }
 `
 
 function RingMesh({ map }: { map: Texture }) {
   const geometry = useRingGeometry()
+  const material = useRef<ShaderMaterial>(null)
+  const band = useRef({ index: 0, amount: 0 })
   const uniforms = useMemo(
     () => ({
       uMap: { value: map },
       uPlanetCenter: { value: ringFrame.center },
       uPlanetRadius: ringFrame.radius,
       uDim: { value: 1 },
+      uBandCount: { value: SKILLS.length },
+      uBand: { value: 0 },
+      uBandAmount: { value: 0 },
     }),
     [map],
   )
+  // Follow the skill category hovered in the panel (keep the last index while fading out)
+  useFrame((_, dt) => {
+    const hovered = useAppStore.getState().hoveredSkill
+    const b = band.current
+    if (hovered !== null) b.index = hovered
+    easing.damp(b, 'amount', hovered !== null ? 1 : 0, 0.18, dt)
+    const u = material.current?.uniforms
+    if (u) {
+      u.uBand.value = b.index
+      u.uBandAmount.value = b.amount
+    }
+  })
+
   return (
     <mesh geometry={geometry} raycast={() => null}>
       <shaderMaterial
         vertexShader={ringVertex}
+        ref={material}
         fragmentShader={ringFragment}
         uniforms={uniforms}
         side={DoubleSide}

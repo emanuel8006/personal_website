@@ -18,6 +18,12 @@ interface AppState {
   quality: QualityTier
   viewMode: ViewMode
   planetXFound: boolean
+  /** Project to bring into view in the Projects panel (set by clicking its moon). */
+  activeProject: string | null
+  /** Project whose moon/card is under the pointer or focus (moon glow + tooltip). */
+  hoveredProject: string | null
+  /** Index of the skill category whose Saturn ring band is highlighted. */
+  hoveredSkill: number | null
 
   openSection: (id: SectionId) => void
   closeSection: () => void
@@ -28,6 +34,9 @@ interface AppState {
   setQuality: (tier: QualityTier) => void
   setViewMode: (mode: ViewMode) => void
   discoverPlanetX: () => void
+  focusProject: (id: string) => void
+  setHoveredProject: (id: string | null) => void
+  setHoveredSkill: (index: number | null) => void
 }
 
 /** Sections currently reachable (Planet X only after discovery), in nav order. */
@@ -43,20 +52,26 @@ export const useAppStore = create<AppState>()((set, get) => ({
   viewMode: '3d',
   // Dev convenience: ?planetx reveals Planet X without hunting for it
   planetXFound: import.meta.env.DEV && new URLSearchParams(location.search).has('planetx'),
+  activeProject: null,
+  hoveredProject: null,
+  hoveredSkill: null,
 
   // Opening/stepping clears hover so a stale tooltip doesn't linger over the new view
-  openSection: (id) => set({ section: id, hovered: null }),
-  closeSection: () => set({ section: null }),
+  openSection: (id) => set({ section: id, hovered: null, activeProject: null }),
+  closeSection: () => set({ section: null, activeProject: null, hoveredSkill: null }),
   stepSection: (dir) => {
     const { section, planetXFound } = get()
     if (!section) return
     const list = availableSections(planetXFound)
     const i = list.indexOf(section)
-    set({ section: list[(i + dir + list.length) % list.length], hovered: null })
+    set({ section: list[(i + dir + list.length) % list.length], hovered: null, activeProject: null, hoveredSkill: null })
   },
   setHovered: (id) => set({ hovered: id }),
   setIntro: (intro) => set({ intro }),
   setQuality: (quality) => set({ quality }),
   setViewMode: (viewMode) => set({ viewMode }),
   discoverPlanetX: () => set({ planetXFound: true }),
+  focusProject: (id) => set({ section: 'projects', activeProject: id, hovered: null, hoveredProject: null }),
+  setHoveredProject: (hoveredProject) => set({ hoveredProject }),
+  setHoveredSkill: (hoveredSkill) => set({ hoveredSkill }),
 }))
