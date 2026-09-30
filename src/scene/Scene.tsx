@@ -1,8 +1,10 @@
 import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import CameraRig from './CameraRig'
+import DevHandle from './DevHandle'
 import { OVERVIEW_POSITION } from './constants'
 import Effects from './Effects'
+import HoverTracker from './HoverTracker'
 import SolarSystem from './SolarSystem'
 import Starfield from './Starfield'
 
@@ -21,6 +23,8 @@ export default function Scene() {
         <SolarSystem />
       </Suspense>
       <CameraRig />
+      <HoverTracker />
+      {import.meta.env.DEV && <DevHandle />}
       <Effects />
     </Canvas>
   )

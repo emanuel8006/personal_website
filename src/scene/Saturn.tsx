@@ -53,6 +53,7 @@ const ringFragment = /* glsl */ `
   uniform sampler2D uMap;
   uniform vec3 uPlanetCenter;
   uniform float uPlanetRadius;
+  uniform float uDim;
   varying vec2 vUv;
   varying vec3 vPosW;
   varying vec3 vNormalW;
@@ -75,7 +76,7 @@ const ringFragment = /* glsl */ `
     // the Solar System Scope strip is dark grey (avg sRGB ~100): lift and warm it
     // toward Saturn's creamy ring color
     vec3 ringColor = tex.rgb * vec3(1.15, 1.03, 0.86) * 2.4;
-    gl_FragColor = vec4(ringColor * brightness * mix(0.08, 1.0, shadow), tex.a * 0.95);
+    gl_FragColor = vec4(ringColor * brightness * mix(0.08, 1.0, shadow) * uDim, tex.a * 0.95);
     #include <colorspace_fragment>
   }
 `
@@ -83,7 +84,12 @@ const ringFragment = /* glsl */ `
 function RingMesh({ map }: { map: Texture }) {
   const geometry = useRingGeometry()
   const uniforms = useMemo(
-    () => ({ uMap: { value: map }, uPlanetCenter: { value: ringFrame.center }, uPlanetRadius: ringFrame.radius }),
+    () => ({
+      uMap: { value: map },
+      uPlanetCenter: { value: ringFrame.center },
+      uPlanetRadius: ringFrame.radius,
+      uDim: { value: 1 },
+    }),
     [map],
   )
   return (
@@ -120,7 +126,10 @@ function SaturnSurface({ map, ringMap }: { map: Texture; ringMap: Texture }) {
       shader.uniforms.uRingOuter = { value: OUTER }
       shader.vertexShader = shader.vertexShader
         .replace('#include <common>', '#include <common>\nvarying vec3 vRingP;')
-        .replace('#include <project_vertex>', '#include <project_vertex>\nvRingP = (modelMatrix * vec4(transformed, 1.0)).xyz;')
+        .replace(
+          '#include <project_vertex>',
+          '#include <project_vertex>\nvRingP = (modelMatrix * vec4(transformed, 1.0)).xyz;',
+        )
       shader.fragmentShader = shader.fragmentShader
         .replace(
           '#include <common>',
@@ -187,7 +196,9 @@ function RingFrameTracker() {
 }
 
 export default function Saturn() {
-  const fallbackSurface = <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+  const fallbackSurface = (
+    <SurfaceMesh radius={config.radius} map={proceduralSurface(config.fallback.style, config.fallback.colors)} />
+  )
 
   return (
     <Planet

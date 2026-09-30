@@ -1,8 +1,9 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { AdditiveBlending, Color, type ShaderMaterial, type Sprite } from 'three'
+import { AdditiveBlending, Color, type Group, type ShaderMaterial, type Sprite } from 'three'
 import { SUN_RADIUS } from './bodies'
 import { coronaRays, radialGlow } from './procedural'
+import { bodyPointerHandlers, useBodyInteraction } from './interaction'
 import { registerBody } from './registry'
 import { useBodyTextures } from './useBodyTextures'
 
@@ -33,6 +34,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uHot;
   uniform vec3 uCool;
   uniform float uIntensity;
+  uniform float uDim;
   varying vec2 vUv;
   varying vec3 vObj;
   varying vec3 vNormalV;
@@ -75,7 +77,7 @@ const fragmentShader = /* glsl */ `
     col *= mix(0.55, 1.0, pow(mu, 0.45));
     col = mix(uCool * 0.8, col, 0.35 + 0.65 * mu);
 
-    gl_FragColor = vec4(col * uIntensity, 1.0);
+    gl_FragColor = vec4(col * uIntensity * uDim, 1.0);
     #include <colorspace_fragment>
   }
 `
@@ -87,8 +89,14 @@ const CORONA_LAYERS: [number, string, number, number][] = [
   [7.5, '#ff7a18', 0.16, 0],
 ]
 
+const BASE_INTENSITY = 2.6
+
 export default function Sun() {
   const { map } = useBodyTextures({ map: 'sun' })
+  const root = useRef<Group>(null)
+  const body = useRef<Group>(null)
+  const interaction = useBodyInteraction('about', root, body, 0.04)
+  const handlers = useMemo(() => bodyPointerHandlers('about'), [])
   const material = useRef<ShaderMaterial>(null)
   const rays = useRef<Sprite>(null)
   const rays2 = useRef<Sprite>(null)
@@ -100,7 +108,8 @@ export default function Sun() {
       uTime: { value: 0 },
       uHot: { value: new Color('#ffcc66') },
       uCool: { value: new Color('#ff5a0a') },
-      uIntensity: { value: 2.6 },
+      uIntensity: { value: BASE_INTENSITY },
+      uDim: { value: 1 },
     }),
     [map],
   )
@@ -109,36 +118,71 @@ export default function Sun() {
   const rayTex = coronaRays()
 
   useFrame((_, dt) => {
-    if (material.current) material.current.uniforms.uTime.value += dt
+    if (material.current) {
+      material.current.uniforms.uTime.value += dt
+      material.current.uniforms.uIntensity.value = BASE_INTENSITY + 0.6 * interaction.current.hover
+    }
     if (rays.current) rays.current.material.rotation += dt * 0.01
     if (rays2.current) rays2.current.material.rotation -= dt * 0.006
   })
 
   return (
-    <group ref={(g) => registerBody('about', g, SUN_RADIUS)} name="Sun">
-      <mesh>
-        <sphereGeometry args={[SUN_RADIUS, 96, 48]} />
-        <shaderMaterial ref={material} vertexShader={vertexShader} fragmentShader={fragmentShader} uniforms={uniforms} />
-      </mesh>
+    <group
+      ref={(g) => {
+        root.current = g
+        registerBody('about', g, SUN_RADIUS)
+      }}
+      name="Sun"
+    >
+      <group ref={body}>
+        <mesh>
+          <sphereGeometry args={[SUN_RADIUS, 96, 48]} />
+          <shaderMaterial
+            ref={material}
+            vertexShader={vertexShader}
+            fragmentShader={fragmentShader}
+            uniforms={uniforms}
+          />
+        </mesh>
 
-      {CORONA_LAYERS.map(([scale, color, opacity], i) => (
-        <sprite key={i} scale={SUN_RADIUS * scale} raycast={() => null}>
+        {CORONA_LAYERS.map(([scale, color, opacity], i) => (
+          <sprite key={i} scale={SUN_RADIUS * scale} raycast={() => null}>
+            <spriteMaterial
+              map={glow}
+              color={new Color(color).multiplyScalar(1.6)}
+              opacity={opacity}
+              blending={AdditiveBlending}
+              depthWrite={false}
+              transparent
+            />
+          </sprite>
+        ))}
+        <sprite ref={rays} scale={SUN_RADIUS * 6} raycast={() => null}>
           <spriteMaterial
-            map={glow}
-            color={new Color(color).multiplyScalar(1.6)}
-            opacity={opacity}
+            map={rayTex}
+            color="#ffb060"
+            opacity={0.5}
             blending={AdditiveBlending}
             depthWrite={false}
             transparent
           />
         </sprite>
-      ))}
-      <sprite ref={rays} scale={SUN_RADIUS * 6} raycast={() => null}>
-        <spriteMaterial map={rayTex} color="#ffb060" opacity={0.5} blending={AdditiveBlending} depthWrite={false} transparent />
-      </sprite>
-      <sprite ref={rays2} scale={SUN_RADIUS * 4.6} raycast={() => null}>
-        <spriteMaterial map={rayTex} color="#ffd9a0" opacity={0.35} rotation={1.3} blending={AdditiveBlending} depthWrite={false} transparent />
-      </sprite>
+        <sprite ref={rays2} scale={SUN_RADIUS * 4.6} raycast={() => null}>
+          <spriteMaterial
+            map={rayTex}
+            color="#ffd9a0"
+            opacity={0.35}
+            rotation={1.3}
+            blending={AdditiveBlending}
+            depthWrite={false}
+            transparent
+          />
+        </sprite>
+      </group>
+
+      <mesh visible={false} {...handlers}>
+        <sphereGeometry args={[SUN_RADIUS * 1.2, 24, 12]} />
+      </mesh>
 
       {/* Main light. decay=0: artistic scale, so outer planets aren't left in the dark */}
       <pointLight intensity={3.4} decay={0} color="#fff3e0" />

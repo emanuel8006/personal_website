@@ -7,6 +7,8 @@ import type { TextureKey } from './textures'
  */
 
 export const SUN_RADIUS = 9
+/** World radius the camera frames when the Sun (About) is focused, corona included. */
+export const SUN_FRAME_RADIUS = 13
 
 export interface AtmosphereConfig {
   color: string
@@ -45,6 +47,10 @@ export interface PlanetConfig {
   /** Used when the texture is missing: procedural surface style + palette. */
   fallback: { style: 'rocky' | 'banded'; colors: string[] }
   atmosphere?: AtmosphereConfig
+  /** World radius the camera frames when focused (includes rings, close moons). */
+  frameRadius: number
+  /** Invisible click/hover sphere radius; generous so small planets are easy to hit. */
+  hitRadius: number
 }
 
 const deg = (d: number) => (d * Math.PI) / 180
@@ -61,6 +67,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     spinSpeed: 0.05,
     texture: 'mercury',
     fallback: { style: 'rocky', colors: ['#5f5a55', '#8c857c', '#3d3a37'] },
+    frameRadius: 3.6,
+    hitRadius: 3.6,
   },
   education: {
     id: 'education',
@@ -74,6 +82,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     texture: 'earthDay',
     fallback: { style: 'rocky', colors: ['#1d4e89', '#2f7d4a', '#c2b280'] },
     atmosphere: { color: '#5aa9ff', rim: 1.6, halo: 1.1 },
+    frameRadius: 4.8,
+    hitRadius: 5,
   },
   experience: {
     id: 'experience',
@@ -87,6 +97,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     texture: 'mars',
     fallback: { style: 'rocky', colors: ['#a0442a', '#c96b3c', '#6e2c1b'] },
     atmosphere: { color: '#ff9a6b', rim: 0.7, halo: 0.45 },
+    frameRadius: 3.3,
+    hitRadius: 4,
   },
   projects: {
     id: 'projects',
@@ -100,6 +112,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     texture: 'jupiter',
     fallback: { style: 'banded', colors: ['#d8c3a5', '#a9825c', '#e9dcc7', '#8c6a4f'] },
     atmosphere: { color: '#f0d9b5', rim: 0.55, halo: 0.2 },
+    frameRadius: 10.5,
+    hitRadius: 9,
   },
   skills: {
     id: 'skills',
@@ -114,6 +128,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     texture: 'saturn',
     fallback: { style: 'banded', colors: ['#e3d3a8', '#c8b07a', '#f0e4c4', '#b09a6a'] },
     atmosphere: { color: '#f5e2b0', rim: 0.5, halo: 0.18 },
+    frameRadius: 14,
+    hitRadius: 13.6,
   },
   personal: {
     id: 'personal',
@@ -127,6 +143,8 @@ export const PLANETS: Record<Exclude<SectionId, 'about'>, PlanetConfig> = {
     texture: 'planetX',
     fallback: { style: 'banded', colors: ['#2b4fb8', '#3f6fe0', '#1c3480'] },
     atmosphere: { color: '#6f9dff', rim: 1.1, halo: 0.7 },
+    frameRadius: 4,
+    hitRadius: 4.5,
   },
 }
 
@@ -148,3 +166,7 @@ export const JUPITER_MOONS_PLACEHOLDER: MoonConfig[] = [
   { radius: 0.85, distance: 14.6, speed: 0.26, phase: deg(250), inclination: deg(2), tint: '#b7a58c' },
   { radius: 0.75, distance: 16.8, speed: 0.2, phase: deg(320), inclination: deg(-5), tint: '#8f8577' },
 ]
+
+export function frameRadius(id: SectionId) {
+  return id === 'about' ? SUN_FRAME_RADIUS : PLANETS[id].frameRadius
+}

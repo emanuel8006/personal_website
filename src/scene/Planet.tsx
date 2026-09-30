@@ -3,6 +3,8 @@ import { Suspense, useMemo, useRef, type ReactNode } from 'react'
 import type { Group, Texture } from 'three'
 import Atmosphere from './Atmosphere'
 import type { MoonConfig, PlanetConfig } from './bodies'
+import HoverGlow from './HoverGlow'
+import { bodyPointerHandlers, useBodyInteraction } from './interaction'
 import { proceduralSurface } from './procedural'
 import { registerBody, simulation } from './registry'
 import TextureBoundary from './TextureBoundary'
@@ -104,15 +106,18 @@ interface PlanetProps {
  */
 export default function Planet({ config, surface, tilted, children }: PlanetProps) {
   const orbit = useRef<Group>(null)
+  const body = useRef<Group>(null)
   const spin = useRef<Group>(null)
   const angle = useRef(config.phase)
+  const interaction = useBodyInteraction(config.id, orbit, body)
+  const handlers = useMemo(() => bodyPointerHandlers(config.id), [config.id])
   const fallback = useMemo(
     () => proceduralSurface(config.fallback.style, config.fallback.colors),
     [config.fallback.style, config.fallback.colors],
   )
 
   useFrame((_, dt) => {
-    angle.current += dt * config.orbitSpeed * simulation.orbitSpeed
+    angle.current += dt * config.orbitSpeed * simulation.orbitSpeed * interaction.current.orbit
     const r = config.orbitRadius
     orbit.current?.position.set(Math.cos(angle.current) * r, 0, -Math.sin(angle.current) * r)
     if (spin.current) spin.current.rotation.y += dt * config.spinSpeed
@@ -126,15 +131,22 @@ export default function Planet({ config, surface, tilted, children }: PlanetProp
       }}
       name={config.name}
     >
-      <group rotation-y={config.tiltAzimuth ?? 0}>
-        <group rotation-z={config.tilt}>
-          <group ref={spin}>
-            {surface ?? <Surface radius={config.radius} textureKey={config.texture} fallback={fallback} />}
+      <group ref={body}>
+        <group rotation-y={config.tiltAzimuth ?? 0}>
+          <group rotation-z={config.tilt}>
+            <group ref={spin}>
+              {surface ?? <Surface radius={config.radius} textureKey={config.texture} fallback={fallback} />}
+            </group>
+            {tilted}
+            {config.atmosphere && <Atmosphere radius={config.radius} config={config.atmosphere} />}
           </group>
-          {tilted}
-          {config.atmosphere && <Atmosphere radius={config.radius} config={config.atmosphere} />}
         </group>
+        <HoverGlow radius={config.radius} interaction={interaction} />
       </group>
+      {/* Generous invisible hit target: easier to hover/click than the visible sphere */}
+      <mesh visible={false} {...handlers}>
+        <sphereGeometry args={[config.hitRadius, 24, 12]} />
+      </mesh>
       {children}
     </group>
   )

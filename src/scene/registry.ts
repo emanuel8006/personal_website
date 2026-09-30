@@ -18,3 +18,6 @@ export function registerBody(id: SectionId, object: Object3D | null, radius: num
  */
 const frozen = import.meta.env.DEV && new URLSearchParams(location.search).has('freeze') // dev: stop orbits for screenshots
 export const simulation = { orbitSpeed: frozen ? 0 : 1, orbitSpeedTarget: frozen ? 0 : 1 }
+
+/** Camera flight state, read by the chromatic-aberration pass. */
+export const flight = { active: false, progress: 0 }

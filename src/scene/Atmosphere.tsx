@@ -24,6 +24,7 @@ const vertexShader = /* glsl */ `
 const rimFragment = /* glsl */ `
   uniform vec3 uColor;
   uniform float uIntensity;
+  uniform float uDim;
   varying vec3 vNormalW;
   varying vec3 vPosW;
   void main() {
@@ -31,7 +32,7 @@ const rimFragment = /* glsl */ `
     vec3 v = normalize(cameraPosition - vPosW);
     float fres = pow(1.0 - clamp(dot(n, v), 0.0, 1.0), 3.0);
     float day = smoothstep(-0.35, 0.5, dot(n, normalize(-vPosW)));
-    gl_FragColor = vec4(uColor * fres * uIntensity * (0.08 + day), 1.0);
+    gl_FragColor = vec4(uColor * fres * uIntensity * (0.08 + day) * uDim, 1.0);
     #include <colorspace_fragment>
   }
 `
@@ -39,6 +40,7 @@ const rimFragment = /* glsl */ `
 const haloFragment = /* glsl */ `
   uniform vec3 uColor;
   uniform float uIntensity;
+  uniform float uDim;
   uniform float uInner; // -dot(n, v) where the view ray grazes the planet surface
   varying vec3 vNormalW;
   varying vec3 vPosW;
@@ -48,7 +50,7 @@ const haloFragment = /* glsl */ `
     float t = clamp(-dot(n, v) / uInner, 0.0, 1.0);
     float glow = pow(t, 3.6);
     float day = smoothstep(-0.4, 0.5, dot(n, normalize(-vPosW)));
-    gl_FragColor = vec4(uColor * glow * uIntensity * (0.05 + day), 1.0);
+    gl_FragColor = vec4(uColor * glow * uIntensity * (0.05 + day) * uDim, 1.0);
     #include <colorspace_fragment>
   }
 `
@@ -58,11 +60,15 @@ const HALO_SCALE = 1.14
 
 export default function Atmosphere({ radius, config }: { radius: number; config: AtmosphereConfig }) {
   const color = useMemo(() => new Color(config.color), [config.color])
-  const rimUniforms = useMemo(() => ({ uColor: { value: color }, uIntensity: { value: config.rim } }), [color, config.rim])
+  const rimUniforms = useMemo(
+    () => ({ uColor: { value: color }, uIntensity: { value: config.rim }, uDim: { value: 1 } }),
+    [color, config.rim],
+  )
   const haloUniforms = useMemo(
     () => ({
       uColor: { value: color },
       uIntensity: { value: config.halo },
+      uDim: { value: 1 },
       uInner: { value: Math.sqrt(1 - 1 / (HALO_SCALE * HALO_SCALE)) },
     }),
     [color, config.halo],

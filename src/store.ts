@@ -21,6 +21,8 @@ interface AppState {
 
   openSection: (id: SectionId) => void
   closeSection: () => void
+  /** Step to the next/previous available section (arrow keys while a panel is open). */
+  stepSection: (dir: 1 | -1) => void
   setHovered: (id: SectionId | null) => void
   setIntro: (state: IntroState) => void
   setQuality: (tier: QualityTier) => void
@@ -28,7 +30,12 @@ interface AppState {
   discoverPlanetX: () => void
 }
 
-export const useAppStore = create<AppState>()((set) => ({
+/** Sections currently reachable (Planet X only after discovery), in nav order. */
+export function availableSections(planetXFound: boolean): SectionId[] {
+  return SECTION_IDS.filter((id) => id !== 'personal' || planetXFound)
+}
+
+export const useAppStore = create<AppState>()((set, get) => ({
   section: null,
   hovered: null,
   intro: 'loading',
@@ -37,8 +44,16 @@ export const useAppStore = create<AppState>()((set) => ({
   // Dev convenience: ?planetx reveals Planet X without hunting for it
   planetXFound: import.meta.env.DEV && new URLSearchParams(location.search).has('planetx'),
 
-  openSection: (id) => set({ section: id }),
+  // Opening/stepping clears hover so a stale tooltip doesn't linger over the new view
+  openSection: (id) => set({ section: id, hovered: null }),
   closeSection: () => set({ section: null }),
+  stepSection: (dir) => {
+    const { section, planetXFound } = get()
+    if (!section) return
+    const list = availableSections(planetXFound)
+    const i = list.indexOf(section)
+    set({ section: list[(i + dir + list.length) % list.length], hovered: null })
+  },
   setHovered: (id) => set({ hovered: id }),
   setIntro: (intro) => set({ intro }),
   setQuality: (quality) => set({ quality }),

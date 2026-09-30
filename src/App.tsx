@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import Hud from './ui/Hud'
 
 // three.js + R3F live in their own chunk so the 2D view never downloads them.
 const Scene = lazy(() => import('./scene/Scene'))
@@ -9,6 +10,7 @@ export default function App() {
       <Suspense fallback={null}>
         <Scene />
       </Suspense>
+      <Hud />
     </main>
   )
 }
