@@ -36,7 +36,7 @@ function PanelHeader({ section }: { section: SectionId }) {
       <div className="min-w-0">
         <p className="font-mono text-[11px] tracking-[0.22em] text-cyan uppercase">
           {section === 'personal' ? 'X' : String(index + 1).padStart(2, '0')} / {String(list.length).padStart(2, '0')}
-          <span className="text-slate-500"> · </span>
+          <span className="text-slate-400"> · </span>
           {meta.body}
         </p>
         <h2

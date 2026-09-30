@@ -17,7 +17,7 @@ export default function Experience() {
           </p>
           <h3 className="mt-1 font-display text-lg font-semibold text-white">{e.role}</h3>
           <p className="text-slate-300">
-            {e.company} <span className="text-slate-500">·</span> {e.location}
+            {e.company} <span className="text-slate-400">·</span> {e.location}
           </p>
           <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-300 marker:text-cyan/70">
             {e.bullets.map((b) => (

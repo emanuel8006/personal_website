@@ -27,3 +27,19 @@ export function writeFlag(kind: Kind, key: string) {
     // ignore: the feature just won't persist
   }
 }
+
+export function readString(kind: Kind, key: string): string | null {
+  try {
+    return store(kind)?.getItem(key) ?? null
+  } catch {
+    return null
+  }
+}
+
+export function writeString(kind: Kind, key: string, value: string) {
+  try {
+    store(kind)?.setItem(key, value)
+  } catch {
+    // ignore
+  }
+}

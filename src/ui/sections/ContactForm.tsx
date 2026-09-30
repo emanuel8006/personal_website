@@ -162,7 +162,7 @@ export default function ContactForm() {
           </label>
           {name === 'message' && (
             <span
-              className={`font-mono text-[11px] ${values.message.length > LIMITS.message.max ? 'text-rose-300' : 'text-slate-500'}`}
+              className={`font-mono text-[11px] ${values.message.length > LIMITS.message.max ? 'text-rose-300' : 'text-slate-400'}`}
               aria-hidden="true"
             >
               {values.message.length}/{LIMITS.message.max}

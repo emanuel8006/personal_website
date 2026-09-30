@@ -33,7 +33,7 @@ export default function Skills({ variant }: SectionProps) {
             </span>
           ))}
         {variant === 'panel' && (
-          <span className="text-slate-500">{HAS_LEVELS && '· '}Hover a category to light up its ring on Saturn</span>
+          <span className="text-slate-400">{HAS_LEVELS && '· '}Hover a category to light up its ring on Saturn</span>
         )}
       </div>
 
@@ -47,7 +47,7 @@ export default function Skills({ variant }: SectionProps) {
           >
             <div className="mb-3 flex items-baseline justify-between gap-3">
               <h3 className="font-display text-base font-semibold text-white">{category.name}</h3>
-              <span className="font-mono text-[10px] tracking-[0.2em] text-slate-500 uppercase">Ring {i + 1}</span>
+              <span className="font-mono text-[10px] tracking-[0.2em] text-slate-400 uppercase">Ring {i + 1}</span>
             </div>
             <ul aria-label={`${category.name} skills`} className="flex flex-wrap gap-1.5">
               {category.skills.map((skill) => (

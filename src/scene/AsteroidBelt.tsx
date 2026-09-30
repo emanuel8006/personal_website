@@ -13,7 +13,8 @@ import {
   type MeshStandardMaterial,
 } from 'three'
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { useAppStore, type QualityTier } from '../store'
+import { TIER_SETTINGS } from '../lib/capability'
+import { useAppStore } from '../store'
 import { applyDim, canInteract } from './interaction'
 import { specialAsteroid, simulation } from './registry'
 
@@ -22,8 +23,7 @@ const INNER = 56
 const OUTER = 68
 const THICKNESS = 1.6 // ~1σ vertical spread
 const SPIN = 0.01 // rad/s for the whole belt
-const COUNTS: Record<QualityTier, number> = { high: 1600, medium: 900, low: 400 }
-const MAX_COUNT = COUNTS.high
+const MAX_COUNT = TIER_SETTINGS.high.asteroids
 const CLICK_SLOP = 6
 
 /** Deterministic PRNG so the belt (and the special asteroid's spot) is the same every visit. */
@@ -188,7 +188,7 @@ export default function AsteroidBelt() {
       <instancedMesh
         ref={mesh}
         args={[geometry, undefined, MAX_COUNT]}
-        count={COUNTS[quality]}
+        count={TIER_SETTINGS[quality].asteroids}
         frustumCulled={false}
         raycast={() => null}
       >

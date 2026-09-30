@@ -38,7 +38,7 @@ export default function Contact({ variant }: SectionProps) {
           ))}
         </ul>
         {variant === 'panel' && (
-          <p className="font-mono text-xs text-slate-500">Each link is also a satellite orbiting Mercury.</p>
+          <p className="font-mono text-xs text-slate-400">Each link is also a satellite orbiting Mercury.</p>
         )}
       </section>
     </div>

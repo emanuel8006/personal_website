@@ -1,9 +1,20 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { ABOUT, SITE } from '../data/content'
 import { useAppStore } from '../store'
 
+/** After this long, offer the simple view (slow connection or GPU). */
+const SLOW_LOAD_MS = 6000
+
 function Loader({ progress }: { progress: number }) {
   const pct = Math.round(progress)
+  const setViewMode = useAppStore((s) => s.setViewMode)
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), SLOW_LOAD_MS)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   return (
     <div className="w-64 text-center">
       <p className="font-mono text-[11px] tracking-[0.32em] text-slate-400 uppercase">Charting the system</p>
@@ -20,9 +31,18 @@ function Loader({ progress }: { progress: number }) {
           style={{ width: `${Math.max(2, pct)}%` }}
         />
       </div>
-      <p className="mt-3 font-mono text-xs text-slate-500 tabular-nums" aria-hidden="true">
+      <p className="mt-3 font-mono text-xs text-slate-400 tabular-nums" aria-hidden="true">
         {String(pct).padStart(3, '0')}%
       </p>
+      <button
+        type="button"
+        onClick={() => setViewMode('2d')}
+        className={`mt-8 font-mono text-[11px] tracking-[0.12em] text-slate-400 underline-offset-4 transition-opacity duration-700 hover:text-white hover:underline focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-cyan focus-visible:outline-none ${
+          slow ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        Taking a while? Switch to the simple view
+      </button>
     </div>
   )
 }

@@ -4,4 +4,6 @@
  */
 export const hud = {
   tooltip: null as HTMLDivElement | null,
+  /** Full-screen black layer used for reduced-motion "fade cuts" instead of camera flights. */
+  fade: null as HTMLDivElement | null,
 }

@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { useRef } from 'react'
 import { BackSide, Color, SRGBColorSpace, type Group, type MeshBasicMaterial } from 'three'
+import { TIER_SETTINGS } from '../lib/capability'
 import { useAppStore } from '../store'
 import Nebula from './Nebula'
 import { reveal } from './registry'
@@ -39,6 +40,7 @@ function MilkyWay({ url }: { url: string }) {
  * space and provide parallax when the camera moves.
  */
 export default function Starfield() {
+  const stars = useAppStore((s) => TIER_SETTINGS[s.quality].stars)
   const backdrop = useRef<Group>(null)
   const milkyWay = textureUrl('starsMilkyWay')
 
@@ -62,7 +64,7 @@ export default function Starfield() {
         {milkyWay && <MilkyWay url={milkyWay} />}
         <Nebula radius={BACKDROP_RADIUS * 0.95} />
       </group>
-      <Stars radius={380} depth={120} count={7000} factor={5} saturation={0.15} fade speed={0.4} />
+      <Stars radius={380} depth={120} count={stars} factor={5} saturation={0.15} fade speed={0.4} />
     </>
   )
 }

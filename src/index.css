@@ -45,3 +45,22 @@
 .has-ship-cursor select {
   cursor: default !important;
 }
+
+/* 2D view starfield drift (see src/fallback/StarfieldBackground.tsx) */
+@keyframes star-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -2000px, 0);
+  }
+}
+.star-drift {
+  animation: star-drift linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .star-drift {
+    animation: none;
+  }
+}

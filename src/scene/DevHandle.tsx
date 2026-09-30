@@ -9,7 +9,9 @@ export default function DevHandle() {
   const size = useThree((s) => s.size)
   const scene = useThree((s) => s.scene)
   useEffect(() => {
-    Object.assign(window, { __portfolio: { camera, size, scene, bodyRegistry, flight, specialAsteroid, store: useAppStore } })
+    Object.assign(window, {
+      __portfolio: { camera, size, scene, bodyRegistry, flight, specialAsteroid, store: useAppStore },
+    })
   }, [camera, size, scene])
   return null
 }

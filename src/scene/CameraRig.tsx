@@ -4,6 +4,7 @@ import CameraControlsImpl from 'camera-controls'
 import { useEffect, useRef } from 'react'
 import { MathUtils, Vector3, type PerspectiveCamera } from 'three'
 import { prefersReducedMotion } from '../hooks/useReducedMotion'
+import { hud } from '../ui/hudRefs'
 import { useAppStore, type SectionId } from '../store'
 import { frameRadius } from './bodies'
 import { OVERVIEW_POSITION } from './constants'
@@ -38,6 +39,8 @@ const IDLE_BEFORE_DRIFT = 4 // seconds
 const INTRO_START = new Vector3(0, 3, 32)
 const INTRO_DURATION = 5.5 // seconds
 const SKIP_DURATION = 0.9 // seconds: skipping mid-intro eases to the overview instead of cutting
+/** Reduced motion: fade to black, cut the camera while it's dark, fade back. */
+const FADE_CUT_MS = 420
 const DRIFT_SPEED = 0.012 // radians / second
 
 const OVERVIEW_LIMITS = { minDistance: 70, maxDistance: 330, minPolarAngle: 0.3, maxPolarAngle: 1.45 }
@@ -109,6 +112,8 @@ export default function CameraRig() {
     introFlight: false,
     /** Camera is parked at the intro start pose, waiting for the scene to load. */
     introPose: false,
+    /** Seconds to hold before moving (lets the reduced-motion fade reach black first). */
+    delay: 0,
   })
 
   // Setup: input mapping, overview limits, interaction tracking, store subscription
@@ -167,8 +172,17 @@ export default function CameraRig() {
       else endPos.copy(OVERVIEW_POS)
       const distance = r.fromPos.distanceTo(endPos)
 
-      // Reduced motion: effectively a cut (phase 7 adds a fade over it)
-      r.duration = prefersReducedMotion() ? 0.001 : (opts.duration ?? MathUtils.clamp(1.5 + distance / 300, 1.5, 2))
+      const reduced = prefersReducedMotion()
+      r.duration = reduced ? 0.001 : (opts.duration ?? MathUtils.clamp(1.5 + distance / 300, 1.5, 2))
+      r.delay = 0
+      if (reduced && hud.fade && distance > 1) {
+        // Reduced motion: a quick fade instead of a flight; the cut happens while the screen is dark
+        hud.fade.animate([{ opacity: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], {
+          duration: FADE_CUT_MS,
+          easing: 'ease-in-out',
+        })
+        r.delay = (FADE_CUT_MS * 0.46) / 1000 // cut while fully black
+      }
       r.t = 0
       r.flying = true
       c.enabled = false
@@ -216,6 +230,10 @@ export default function CameraRig() {
     if (!hasDest) return
 
     if (r.flying) {
+      if (r.delay > 0) {
+        r.delay -= dt
+        return
+      }
       r.t = Math.min(1, r.t + dt / r.duration)
       const e = easeInOutCubic(r.t)
 
