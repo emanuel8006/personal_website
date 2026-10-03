@@ -167,7 +167,7 @@ export const EDUCATION: EducationEntry[] = [
     location: 'Boston, MA',
     degrees: ['B.S. in Computer Science and Mathematics'],
     graduation: 'Expected May 2029',
-    gpa: { value: '3.72 / 4.0', show: true },
+    gpa: { value: '3.73 / 4.0', show: true },
     coursework: [
       'Algorithms',
       'Object-Oriented Design',
@@ -208,7 +208,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
       'Diagnosed 4 defective PCB boards via Realterm serial capture, catching display faults before assembly.',
       'Authored 3 formal technical test reports on benchmarking device performance and reliability for lab instrumentation, following professional engineering documentation standards.',
     ],
-    tech: ['N/A'],
+    tech: [],
   },
 ]
 
@@ -313,14 +313,14 @@ export const CONTACT: Contact = {
 
 export const PERSONAL: Personal = {
   blurb: [
-    "Off the clock you'll find me hiking, watching sci-fi shows, watching videos about true-crime, and learning about space exploration (which probably explains this website). I'm also interested in artificial intelligence and in digital inclusion: making technology work for everyone.",
+    "Off the clock you'll find me watching sci-fi shows, watching videos about true-crime,  learning about space exploration (which probably explains this website), and sometimes hiking. I'm also interested in artificial intelligence and in digital inclusion: making technology work for everyone.",
   ],
   hobbies: ['Hiking', 'Sci-fi shows', 'Space exploration', 'Artificial intelligence', 'Digital inclusion'],
   funFacts: [
     // TODO: 
-    'Before Northeastern, I co-led software for my high school FIRST Robotics team.',
-    'One of the languages I know is Lean, which doubles as a theorem prover for math proofs.',
-    '[PLACEHOLDER] Something surprising about you that is not on your resume',
+    'One of my favorite shows is Silo (on AppleTV). I recommend people watch this!',
+    'I am bilingual: I can speak Spanish and English.',
+    'In Spring 2026, I volunteered to be a tax preparer with Boston Tax Help Coalition.',
   ],
 }
 
